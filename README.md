@@ -1,2 +1,2 @@
-# pilot-health-monitoring-capstone
-ECE 44X Capstone Team 44
+# pilot-health-monitoring-system
+ECE 44X Capstone Project
