@@ -1,5 +1,7 @@
+#pragma once
 
-
+#include "ds_types.hpp"
+#include "ds_looping_buffer.hpp"
 /**
  * Reader
  * Identifies a data reader

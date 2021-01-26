@@ -1,3 +1,5 @@
+#pragma once
+
 #include <cstdint>
 
 using po2_sample = uint32_t;
