@@ -125,15 +125,18 @@ int Looping_Buffer<TYPE, LENGTH>::try_write(const TYPE *src, size_t len)
 template <class TYPE, int LENGTH>
 void Looping_Buffer<TYPE, LENGTH>::print_state()
 {
+	// assumes that TYPE is an integral type
+	printf("------------ print_state() ------------\n");
 	mut.lock();
 	for (int i = 0; i < LENGTH; i++)
 	{
 		if (i == count % LENGTH)
-			printf("> %i (%i)\n", buffer[i], count);
+			printf("|> %i (%i)\n", buffer[i], count);
 		else
-			printf("  %i\n", buffer[i]);
+			printf("|  %i\n", buffer[i]);
 	}
 	mut.unlock();
+	printf("---------------------------------------\n");
 }
 
 /**
