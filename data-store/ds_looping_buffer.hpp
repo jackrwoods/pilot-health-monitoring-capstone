@@ -13,8 +13,8 @@ template <typename TYPE, int LENGTH>
 class Looping_Buffer
 {
 private:
-	T buffer[LENGTH];
-	std::mutex mut;	// control access to the buffer
+	TYPE buffer[LENGTH];
+	std::mutex mut; // control access to the buffer
 	uint32_t count; // count the number of received samples
 public:
 	int block_read(int from, int to, TYPE *dest);
@@ -22,6 +22,8 @@ public:
 
 	int block_write(const TYPE *src, size_t len);
 	int try_write(const TYPE *src, size_t len);
+
+	void print_state();
 };
 
 /**
@@ -65,7 +67,7 @@ int Looping_Buffer<TYPE, LENGTH>::block_write(const TYPE *src, size_t len)
 }
 
 /**
- * block_write: write to the buffer from src. Return if buffer is unavailable.
+ * try_write: write to the buffer from src. Return if buffer is unavailable.
  * @param src data source
  * @param len how many samples to copy
  * @returns Number of samples successfully read
@@ -74,4 +76,20 @@ template <class TYPE, int LENGTH>
 int Looping_Buffer<TYPE, LENGTH>::try_write(const TYPE *src, size_t len)
 {
 	return 0;
+}
+
+/**
+ * print_state: print the current contents and position of looping buffer
+ */
+template <class TYPE, int LENGTH>
+void Looping_Buffer<TYPE, LENGTH>::print_state()
+{
+	mut.lock();
+	for(int i = 0; i < LENGTH; i++) {
+		if(i == count%LENGTH)
+			printf("> %i (%i)\n", buffer[i], i);
+		else
+			printf("  %i\n", buffer[i]);
+	}
+	mut.unlock();
 }
