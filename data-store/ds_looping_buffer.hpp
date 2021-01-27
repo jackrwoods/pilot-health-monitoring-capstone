@@ -1,6 +1,7 @@
 #pragma once
 
 #include <mutex>
+#include <cstring>
 
 #include "ds_types.hpp"
 /**
@@ -17,6 +18,8 @@ private:
 	std::mutex mut; // control access to the buffer
 	uint32_t count; // count the number of received samples
 public:
+	Looping_Buffer();
+
 	int block_read(int from, int to, TYPE *dest);
 	int try_read(int from, int to, TYPE *dest);
 
@@ -25,6 +28,12 @@ public:
 
 	void print_state();
 };
+
+template <class TYPE, int LENGTH>
+Looping_Buffer<TYPE, LENGTH>::Looping_Buffer()
+{
+	memset(buffer, 0, sizeof(TYPE) * LENGTH);
+}
 
 /**
  * block_read: Unlock buffer and copy data from the buffer. 
@@ -85,8 +94,9 @@ template <class TYPE, int LENGTH>
 void Looping_Buffer<TYPE, LENGTH>::print_state()
 {
 	mut.lock();
-	for(int i = 0; i < LENGTH; i++) {
-		if(i == count%LENGTH)
+	for (int i = 0; i < LENGTH; i++)
+	{
+		if (i == count % LENGTH)
 			printf("> %i (%i)\n", buffer[i], i);
 		else
 			printf("  %i\n", buffer[i]);
