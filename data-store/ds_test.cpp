@@ -3,9 +3,9 @@
 
 #include "ds_looping_buffer.hpp"
 
-int main()
+void test_lb()
 {
-    std::cout << "Data_Store tests" << std::endl;
+    std::cout << "looping buffer tests:" << std::endl;
 
     Looping_Buffer<uint32_t, 16> lb;
 
@@ -19,7 +19,8 @@ int main()
     assert(16 == lb.block_read(0, 16, buffer_1));
 
     // all 16 uint32_t are written from buffer_0 to buffer_1
-    for(int i = 0; i < 16; i++) {
+    for (int i = 0; i < 16; i++)
+    {
         assert(buffer_0[i] == buffer_1[i]);
         // for the next test;
         buffer_0[i] *= i;
@@ -32,7 +33,8 @@ int main()
     assert(16 == lb.block_read(0, 16, buffer_1));
 
     // all 16 uint32_t are written from buffer_0 to buffer_1
-    for(int i = 0; i < 16; i++) {
+    for (int i = 0; i < 16; i++)
+    {
         assert(buffer_0[i] == buffer_1[i]);
     }
 
@@ -42,12 +44,28 @@ int main()
     // try_read() reads all 8 uint32_t to buffer_1
     assert(8 == lb.block_read(32, 40, buffer_1));
 
-    for(int i = 0; i < 8; i++) {
+    for (int i = 0; i < 8; i++)
+    {
         // printf("%i:%i\n", buffer_0[i], buffer_1[i]);
         assert(buffer_0[i] == buffer_1[i]);
     }
 
+    // block_read() fails when asked to copy more than LENGTH items
+    assert(0 == lb.block_read(0, 40, buffer_0));
+
+    // accurate samples received
+    assert(40 == lb.samples_recv());
+
     lb.print_state();
+}
+void test_ds()
+{
+    std::cout << "Data_Store tests:" << std::endl;
+}
+int main()
+{
+    test_lb();
+    test_ds();
     std::cout << "All tests passed" << std::endl;
 
     return 0;
