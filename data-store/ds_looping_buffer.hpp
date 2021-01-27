@@ -16,7 +16,11 @@ class Looping_Buffer
 private:
 	TYPE buffer[LENGTH];
 	std::mutex mut; // control access to the buffer
-	uint32_t count; // count the number of received samples
+	uint32_t count{0}; // count the number of received samples
+
+	int copy_from(const TYPE *src, size_t len);
+	int copy_to(TYPE *dest, int from, int to);
+
 public:
 	Looping_Buffer();
 
@@ -27,6 +31,8 @@ public:
 	int try_write(const TYPE *src, size_t len);
 
 	void print_state();
+
+	int samples_recv();
 };
 
 template <class TYPE, int LENGTH>
@@ -46,7 +52,12 @@ Looping_Buffer<TYPE, LENGTH>::Looping_Buffer()
 template <class TYPE, int LENGTH>
 int Looping_Buffer<TYPE, LENGTH>::block_read(int from, int to, TYPE *dest)
 {
-	return 0;
+	int read_count{0};
+	mut.lock();
+	// copy data
+	read_count = copy_to(dest, from, to);
+	mut.unlock();
+	return read_count;
 }
 
 /**
@@ -60,7 +71,14 @@ int Looping_Buffer<TYPE, LENGTH>::block_read(int from, int to, TYPE *dest)
 template <class TYPE, int LENGTH>
 int Looping_Buffer<TYPE, LENGTH>::try_read(int from, int to, TYPE *dest)
 {
-	return 0;
+	int read_count{0};
+	if (mut.try_lock())
+	{
+		// copy data
+		read_count = copy_to(dest, from, to);
+		mut.unlock();
+	}
+	return read_count;
 }
 
 /**
@@ -72,7 +90,13 @@ int Looping_Buffer<TYPE, LENGTH>::try_read(int from, int to, TYPE *dest)
 template <class TYPE, int LENGTH>
 int Looping_Buffer<TYPE, LENGTH>::block_write(const TYPE *src, size_t len)
 {
-	return 0;
+	int written_count{0};
+	mut.lock();
+	// copy data
+	written_count = copy_from(src, len);
+	mut.unlock();
+	count += written_count;
+	return written_count;
 }
 
 /**
@@ -84,7 +108,15 @@ int Looping_Buffer<TYPE, LENGTH>::block_write(const TYPE *src, size_t len)
 template <class TYPE, int LENGTH>
 int Looping_Buffer<TYPE, LENGTH>::try_write(const TYPE *src, size_t len)
 {
-	return 0;
+	int written_count{0};
+	if (mut.try_lock())
+	{
+		// copy data
+		written_count = copy_from(src, len);
+		mut.unlock();
+		count += written_count;
+	}
+	return written_count;
 }
 
 /**
@@ -97,9 +129,108 @@ void Looping_Buffer<TYPE, LENGTH>::print_state()
 	for (int i = 0; i < LENGTH; i++)
 	{
 		if (i == count % LENGTH)
-			printf("> %i (%i)\n", buffer[i], i);
+			printf("> %i (%i)\n", buffer[i], count);
 		else
 			printf("  %i\n", buffer[i]);
 	}
 	mut.unlock();
+}
+
+/**
+ * copy_from: Internal copying function. Copies len samples from buffer to src.
+ * @param src data source
+ * @param len how many bytes to copy
+ * @returns Number of samples successfully read
+ */
+template <class TYPE, int LENGTH>
+int Looping_Buffer<TYPE, LENGTH>::copy_from(const TYPE *src, size_t len)
+{
+	int items_copied{0};
+	// do not copy more than LENGTH items:
+	if (len > LENGTH)
+	{
+		return 0;
+	}
+
+	// detect when copy needs to be done twice
+	if (len + count % LENGTH > LENGTH)
+	{
+		// split into two memcpy operations
+		// define section beginnings
+		TYPE *sec_0 = buffer + count % LENGTH;
+		TYPE *sec_1 = buffer;
+
+		// define section lengths
+		int sec_0_len = LENGTH - count % LENGTH;
+		int sec_1_len = len - sec_0_len;
+
+		// copy data
+		memcpy(sec_0, src, sec_0_len * sizeof(TYPE));
+		memcpy(sec_1, src + sec_0_len, sec_1_len * sizeof(TYPE));
+
+		items_copied += sec_0_len;
+		items_copied += sec_1_len;
+	}
+	else
+	{
+		// can be read into contiguous memory
+		memcpy(buffer + count % LENGTH, src, len * sizeof(TYPE));
+		items_copied += len;
+	}
+	return items_copied;
+}
+
+/**
+ * copy_to: Internal copying function. Copies len samples from dest to buffer.
+ * @param dest data source
+ * @param len how many bytes to copy
+ * @returns Number of samples successfully read
+ */
+template <class TYPE, int LENGTH>
+int Looping_Buffer<TYPE, LENGTH>::copy_to(TYPE *dest, int from, int to)
+{
+	// calculate the length to copy
+	int len = to - from;
+
+	int items_copied{0};
+	// cannot copy more than LENGTH items:
+	if (len > LENGTH)
+	{
+		return 0;
+	}
+
+	// detect when copy needs to be done twice - when data loops
+	if (len + count % LENGTH > LENGTH)
+	{
+		// split into two memcpy operations
+		// define section beginnings
+		TYPE *sec_0 = buffer + count % LENGTH;
+		TYPE *sec_1 = buffer;
+
+		// define section lengths
+		int sec_0_len = LENGTH - from % LENGTH;
+		int sec_1_len = len - sec_0_len;
+
+		// copy data
+		memcpy(dest, sec_0, sec_0_len * sizeof(TYPE));
+		memcpy(dest + sec_0_len, sec_1, sec_1_len * sizeof(TYPE));
+
+		items_copied += sec_0_len;
+		items_copied += sec_1_len;
+	}
+	else
+	{
+		// can be read into contiguous memory
+		memcpy(dest, buffer + from % LENGTH, len * sizeof(TYPE));
+		items_copied += len;
+	}
+	return items_copied;
+}
+
+/**
+ * samples_recv: Get total number of samples received.
+ * @returns Total number of samples received.
+ */
+template<class TYPE, int LENGTH> int Looping_Buffer<TYPE, LENGTH>::samples_recv() {
+	return count;
 }

@@ -36,6 +36,18 @@ int main()
         assert(buffer_0[i] == buffer_1[i]);
     }
 
+    // try_write() writes all 8 uint32_t to looping buffer
+    assert(8 == lb.block_write(buffer_0, 8));
+
+    // try_read() reads all 8 uint32_t to buffer_1
+    assert(8 == lb.block_read(32, 40, buffer_1));
+
+    for(int i = 0; i < 8; i++) {
+        // printf("%i:%i\n", buffer_0[i], buffer_1[i]);
+        assert(buffer_0[i] == buffer_1[i]);
+    }
+
+    lb.print_state();
     std::cout << "All tests passed" << std::endl;
 
     return 0;
