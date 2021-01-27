@@ -194,13 +194,16 @@ int Looping_Buffer<TYPE, LENGTH>::copy_to(TYPE *dest, int from, int to)
 {
 	// calculate the length to copy
 	int len = to - from;
+	if(len <= 0)
+		return 0;
+
+	if(to > count || from > count)
+		return 0;
 
 	int items_copied{0};
 	// cannot copy more than LENGTH items:
 	if (len > LENGTH)
-	{
 		return 0;
-	}
 
 	// detect when copy needs to be done twice - when data loops
 	if (len + count % LENGTH > LENGTH)

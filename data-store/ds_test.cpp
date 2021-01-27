@@ -53,6 +53,12 @@ void test_lb()
     // block_read() fails when asked to copy more than LENGTH items
     assert(0 == lb.block_read(0, 40, buffer_0));
 
+    // block_read() fails when asked to copy negative items
+    assert(0 == lb.block_read(40, 0, buffer_0));
+
+    // block_read() fails when asked to copy ahead of current most recent sample
+    assert(0 == lb.block_read(40, 50, buffer_0));
+
     // accurate samples received
     assert(40 == lb.samples_recv());
 
