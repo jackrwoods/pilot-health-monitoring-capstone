@@ -2,6 +2,7 @@
 #include <assert.h>
 
 #include "ds_looping_buffer.hpp"
+#include "ds_data_store.hpp"
 
 void test_lb()
 {
@@ -67,6 +68,8 @@ void test_lb()
 void test_ds()
 {
     std::cout << "Data_Store tests:" << std::endl;
+
+    Data_Store<uint32_t> ds;
 }
 int main()
 {
