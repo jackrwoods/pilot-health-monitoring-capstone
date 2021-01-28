@@ -1,5 +1,28 @@
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app), using the [Redux](https://redux.js.org/) and [Redux Toolkit](https://redux-toolkit.js.org/) template.
 
+## Installation Caveats
+
+The Raspberry Pi Zero only supports the Arm v6 instruction set. NodeJS (as of time of writing) only supports the v7 and v8 instruction sets. Bummer!                                                                                                                             
+
+Fortunately, there are unofficial NodeJS builds available. To install, use this script:
+
+```{bash}
+export NODE_VER=14.15.1
+if ! node --version | grep -q ${NODE_VER}; then
+  (cat /proc/cpuinfo | grep -q "Pi Zero") && if [ ! -d node-v${NODE_VER}-linux-armv6l ]; then
+    echo "Installing nodejs ${NODE_VER} for armv6 from unofficial builds..."
+    curl -O https://unofficial-builds.nodejs.org/download/release/v${NODE_VER}/node-v${NODE_VER}-linux-armv6l.tar.xz
+    tar -xf node-v${NODE_VER}-linux-armv6l.tar.xz
+  fi
+  echo "Adding node to the PATH"
+  PATH=$(pwd)/node-v${NODE_VER}-linux-armv6l/bin:${PATH}
+fi
+```
+
+Thanks to [Rodrigo Graca](https://raspberrypi.stackexchange.com/questions/111130/how-to-install-nodejs-v12-on-raspi-zero-armv6-not-available-for-download-anymor) on Stackoverflow!                                                                                              
+
+I successfully used the script to download NodeJS 14.15.1, which is the latest "Long Term Support" (LTS) release.
+
 ## Available Scripts
 
 In the project directory, you can run:
