@@ -12,6 +12,9 @@ void thread_ex(Data_Store<Sample> *ds_p, Sample *s)
     // register as reader thread
     ds.register_reader_thread();
 
+    // begin clock
+    auto start = std::chrono::high_resolution_clock::now();
+
     // receive personal vector with data
     const std::vector<Sample> &v = ds.vec();
 
@@ -23,6 +26,11 @@ void thread_ex(Data_Store<Sample> *ds_p, Sample *s)
     {
         assert(v[i] == s[i]);
     }
+
+    auto end = std::chrono::high_resolution_clock::now();
+    auto nanos = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count() / 16;
+    float hz = 1000000000.0 / nanos;
+    std::cout << "Thread " << std::this_thread::get_id() << " read and processed 16 Samples in " << nanos << " nanoseconds (max data transfer: " << hz << " hz)\n";
 }
 
 void test_lb()
@@ -114,8 +122,13 @@ void test_ds()
         s[i] = Sample(static_cast<po2_sample>(i), static_cast<optical_sample>(i));
     }
 
+    auto start = std::chrono::high_resolution_clock::now();
     // read new data into data store
     ds.new_data(s, 16);
+    auto end = std::chrono::high_resolution_clock::now();
+    auto nanos = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count() / 64;
+    float hz = 1000000000.0 / nanos;
+    std::cout << "Copied 16 items in " << nanos << " nanoseconds (max data transfer: " << hz << " hz)" << std::endl;
 
     // multithreaded tests
 
@@ -124,14 +137,13 @@ void test_ds()
     std::thread th_2(thread_ex, &ds, s);
     std::thread th_3(thread_ex, &ds, s);
     std::thread th_4(thread_ex, &ds, s);
-    
+
     th_0.join();
     th_1.join();
     th_2.join();
     th_3.join();
     th_4.join();
     std::cout << "Passed!" << std::endl;
-
 }
 
 int main()
