@@ -69,10 +69,14 @@ void test_ds()
 {
     std::cout << "Data_Store tests:" << std::endl;
 
-    Data_Store<uint32_t> ds;
+    // Data_Store<uint32_t> ds;
 }
 int main()
 {
+    Sample s;
+    s.optical = 9;
+    s.po2 = 6;
+    std::cout << "Sample Struct COUT >> " << s << std::endl;
     test_lb();
     test_ds();
     std::cout << "All tests passed" << std::endl;

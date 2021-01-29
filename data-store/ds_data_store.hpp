@@ -18,6 +18,7 @@ struct Reader
 {
     std::vector<Sample> sample_buffer;
     uint32_t count{0};
+    Reader();
 };
 
 Reader::Reader()

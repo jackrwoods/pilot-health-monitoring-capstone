@@ -15,11 +15,12 @@
 #define SQL_SAMPLE_TABLE "samples"
 #define SQL_SAMPLE_SCHEMA "( \
 						sample_id INT NOT NULL AUTO_INCREMENT, \
+						sample_time BIGINT, \
 						optical INT, \
 						po2 INT, \
 						PRIMARY KEY (sample_id) \
 					);"
-#define SQL_SAMPLE_COLUMN_LIST "(optical, po2)"
+#define SQL_SAMPLE_COLUMN_LIST "(sample_time, optical, po2)"
 
 // pilot state table
 #define SQL_STATE_TABLE "pilot_state"
@@ -118,7 +119,7 @@ int SQL_Connection::insert_samples(const std::vector<Sample> &v)
 	std::string cmd_insert = "INSERT INTO " SQL_DATABASE "." SQL_SAMPLE_TABLE " " SQL_SAMPLE_COLUMN_LIST " VALUES ";
 	for (auto vi = v.begin(); vi != v.end(); vi++)
 	{
-		cmd_insert += "(" + std::to_string(vi->optical) + ',' + std::to_string(vi->po2) + ")";
+		cmd_insert += "(" + std::to_string(vi->time_stamp.time_since_epoch().count()) + ',' + std::to_string(vi->optical) + ',' + std::to_string(vi->po2) + ")";
 
 		if (vi + 1 != v.end())
 			cmd_insert += ',';
@@ -135,7 +136,7 @@ int SQL_Connection::insert_samples(const std::vector<Sample> &v)
  */
 int SQL_Connection::insert_sample(const Sample s)
 {
-	std::string cmd_insert = "INSERT INTO " SQL_DATABASE "." SQL_SAMPLE_TABLE " " SQL_SAMPLE_COLUMN_LIST " VALUES (" + std::to_string(s.po2) + ',' + std::to_string(s.optical) + ");";
+	std::string cmd_insert = "INSERT INTO " SQL_DATABASE "." SQL_SAMPLE_TABLE " " SQL_SAMPLE_COLUMN_LIST " VALUES (" + std::to_string(s.time_stamp.time_since_epoch().count()) + ','  + std::to_string(s.po2) + ',' + std::to_string(s.optical) + ");";
 	return query_execute(cmd_insert.c_str());
 }
 
