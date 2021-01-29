@@ -27,7 +27,7 @@ void thread_ex(Data_Store<Sample> *ds_p, Sample *s)
 
 void test_lb()
 {
-    std::cout << "looping buffer tests:" << std::endl;
+    std::cout << "looping buffer tests: ";
 
     Looping_Buffer<uint32_t, 16> lb;
 
@@ -84,11 +84,11 @@ void test_lb()
     // accurate samples received
     assert(40 == lb.samples_recv());
 
-    lb.print_state();
+    std::cout << "Passed!" << std::endl;
 }
 void test_ds()
 {
-    std::cout << "Data_Store tests:" << std::endl;
+    std::cout << "Data_Store tests: ";
 
     Data_Store<Sample> ds;
 
@@ -118,11 +118,20 @@ void test_ds()
     ds.new_data(s, 16);
 
     // multithreaded tests
+
     std::thread th_0(thread_ex, &ds, s);
     std::thread th_1(thread_ex, &ds, s);
-
+    std::thread th_2(thread_ex, &ds, s);
+    std::thread th_3(thread_ex, &ds, s);
+    std::thread th_4(thread_ex, &ds, s);
+    
     th_0.join();
     th_1.join();
+    th_2.join();
+    th_3.join();
+    th_4.join();
+    std::cout << "Passed!" << std::endl;
+
 }
 
 int main()

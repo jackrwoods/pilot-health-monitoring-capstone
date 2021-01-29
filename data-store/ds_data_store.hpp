@@ -263,7 +263,7 @@ const std::vector<Sample> &Data_Store<LENGTH>::vec()
 template <class LENGTH>
 int Data_Store<LENGTH>::copy(Sample *s, size_t len)
 {
-    return samples.copy_to(s, len);
+    return samples.copy_to(s, samples.samples_recv() - len, samples.samples_recv());
 }
 
 /**
