@@ -4,6 +4,27 @@
 #include "ds_looping_buffer.hpp"
 #include "ds_data_store.hpp"
 
+void thread_ex(Data_Store<Sample> *ds_p, Sample *s)
+{
+
+    Data_Store<Sample> &ds = *ds_p;
+
+    // register as reader thread
+    ds.register_reader_thread();
+
+    // receive personal vector with data
+    const std::vector<Sample> &v = ds.vec();
+
+    // all 16 Samples should be in vector
+    assert(v.size() == 16);
+
+    // assert that samples read into vector are identical to those written to vector from Sample *s
+    for (int i = 0; i < 16; i++)
+    {
+        assert(v[i] == s[i]);
+    }
+}
+
 void test_lb()
 {
     std::cout << "looping buffer tests:" << std::endl;
@@ -69,15 +90,48 @@ void test_ds()
 {
     std::cout << "Data_Store tests:" << std::endl;
 
-    // Data_Store<uint32_t> ds;
+    Data_Store<Sample> ds;
+
+    // test gets and sets - should be pretty straightforward
+    ds.set_bpm_average(7);
+    ds.set_bpm_variance(7);
+    ds.set_po2_average(7);
+    ds.set_ece_bpm(7);
+    ds.set_ece_po2(7);
+
+    assert(ds.get_bpm_average() == 7);
+    assert(ds.get_bpm_variance() == 7);
+    assert(ds.get_po2_average() == 7);
+    assert(ds.get_ece_bpm() == 7);
+    assert(ds.get_ece_po2() == 7);
+
+    // array of samples for comparison
+    Sample s[16];
+
+    // populate sample array
+    for (int i = 0; i < 16; i++)
+    {
+        s[i] = Sample(static_cast<po2_sample>(i), static_cast<optical_sample>(i));
+    }
+
+    // read new data into data store
+    ds.new_data(s, 16);
+
+    // multithreaded tests
+    std::thread th_0(thread_ex, &ds, s);
+    std::thread th_1(thread_ex, &ds, s);
+
+    th_0.join();
+    th_1.join();
 }
+
 int main()
 {
-    Sample s;
-    s.optical = 9;
-    s.po2 = 6;
-    std::cout << "Sample Struct COUT >> " << s << std::endl;
-    test_lb();
+    // Sample s;
+    // s.optical = 9;
+    // s.po2 = 6;
+    // std::cout << "Sample Struct COUT >> " << s << std::endl;
+    // test_lb();
     test_ds();
     std::cout << "All tests passed" << std::endl;
 
