@@ -127,11 +127,7 @@ void test_ds()
 
 int main()
 {
-    // Sample s;
-    // s.optical = 9;
-    // s.po2 = 6;
-    // std::cout << "Sample Struct COUT >> " << s << std::endl;
-    // test_lb();
+    test_lb();
     test_ds();
     std::cout << "All tests passed" << std::endl;
 

@@ -20,6 +20,7 @@ Sample::Sample()
 {
 	time_stamp = std::chrono::system_clock::now();
 };
+
 Sample::Sample(po2_sample p, optical_sample o) : po2(p), optical(o)
 {
 	time_stamp = std::chrono::system_clock::now();
@@ -29,6 +30,13 @@ std::ostream &operator<<(std::ostream &os, const Sample s)
 {
 	os << "Sample recorded at " << s.time_stamp.time_since_epoch().count() << " (po2: " << s.po2 << ", optical: " << s.optical << ")";
 	return os;
+}
+
+bool operator==(const Sample &s, const Sample &x) {
+	if(s.optical == x.optical && s.po2 == x.po2 && s.time_stamp == x.time_stamp)
+		return true;
+
+	return false;
 }
 
 enum Pilot_State

@@ -18,10 +18,10 @@ private:
 	std::mutex mut; // control access to the buffer
 	uint32_t count{0}; // count the number of received samples
 
+public:
+
 	int copy_from(const TYPE *src, size_t len);
 	int copy_to(TYPE *dest, int from, int to);
-
-public:
 	Looping_Buffer();
 
 	int block_read(int from, int to, TYPE *dest);
