@@ -1,58 +1,63 @@
-import React from 'react';
-import logo from './logo.svg';
-import { Counter } from './features/counter/Counter';
+import { React, Component } from 'react';
+import { w3cwebsocket as W3CWebSocket } from "websocket";
 import './App.css';
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <Counter />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <span>
-          <span>Learn </span>
-          <a
-            className="App-link"
-            href="https://reactjs.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            React
-          </a>
-          <span>, </span>
-          <a
-            className="App-link"
-            href="https://redux.js.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Redux
-          </a>
-          <span>, </span>
-          <a
-            className="App-link"
-            href="https://redux-toolkit.js.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Redux Toolkit
-          </a>
-          ,<span> and </span>
-          <a
-            className="App-link"
-            href="https://react-redux.js.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            React Redux
-          </a>
-        </span>
-      </header>
-    </div>
-  );
+// App frontend components
+import BigNumber from './components/BigNumber'
+import Graph from './components/Graph'
+import Row from './components/Row'
+import WarningPane from './components/WarningPane';
+
+class App extends Component {
+
+  // This constructor just instantiates constants for the websocket connection
+  constructor(props) {
+    super(props);
+
+    this.wsClient = new W3CWebSocket('ws://192.168.1.1:8080');
+  }
+
+  componentWillMount() {
+    this.wsClient.onopen = () => {
+      console.log('WebSocket Client Connected');
+    };
+
+    this.wsClient.onmessage = (message) => {
+      console.log(message);
+    };
+  }
+
+  render() {
+    return (
+      <div className="App">
+        {/* Warning pane */}
+        <Row>
+          <WarningPane>UNSTR TRND ▲ — ▼</WarningPane>
+        </Row>
+        <Row>
+          <WarningPane>CON FAIL SRV FAIL H LAT</WarningPane>
+        </Row>
+
+        {/* Graphs and data visualization */}
+        <Row>
+          <Graph />
+        </Row>
+        <Row>
+          <BigNumber uom="❤">
+            84
+          </BigNumber>
+        </Row>
+        <Row>
+          <Graph />
+        </Row>
+        <Row>
+          <BigNumber uom="%">
+              96
+          </BigNumber>
+        </Row>
+      </div>
+    );
+  }
 }
 
 export default App;

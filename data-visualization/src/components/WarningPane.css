@@ -1,0 +1,9 @@
+.WarningPane {
+    background-color: rgb(98, 88, 87);
+    color: rgb(255, 255, 255);
+    font-size: 5vh;
+    height: 6vh;
+    overflow: hidden;
+    line-height: 6vh;
+    text-transform: uppercase;
+}
