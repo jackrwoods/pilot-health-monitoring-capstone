@@ -7,7 +7,7 @@ class Trend extends Component {
 
     const len = this.props.data.HR.length;
     let trend = <span style={{color: 'rgb(4, 233, 61)'}}>TRND —</span>
-    if (len > 2000) {
+    if (len > 10) {
         let rawData = this.props.data.HR;
         let slope = (rawData.slice(len / 2, len - 1).reduce((a, b) => a + b) - rawData.slice(0, len / 2).reduce((a, b) => a + b))
         if (Math.abs(slope) > 0.2) {
