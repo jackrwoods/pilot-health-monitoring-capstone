@@ -9,10 +9,10 @@
     "@testing-library/user-event": "^7.2.1",
     "chart.js": "^2.9.4",
     "react": "^17.0.1",
-    "react-chartjs-2": "^2.11.1",
     "react-dom": "^17.0.1",
     "react-redux": "^7.2.2",
     "react-scripts": "4.0.1",
+    "webgl-plot": "^0.5.6",
     "websocket": "^1.0.33"
   },
   "scripts": {
