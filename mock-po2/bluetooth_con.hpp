@@ -30,3 +30,27 @@ public:
 
     int adjust_po2(int i);
 };
+
+Bluetooth_Connection::Bluetooth_Connection()
+{
+}
+
+Bluetooth_Connection::Bluetooth_Connection(std::string MAC)
+{
+}
+
+Bluetooth_Connection::~Bluetooth_Connection()
+{
+}
+
+bool Bluetooth_Connection::connect(std::string MAC)
+{
+}
+
+bool Bluetooth_Connection::close()
+{
+}
+
+int Bluetooth_Connection::adjust_po2(int i)
+{
+}
