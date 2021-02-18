@@ -11,6 +11,8 @@
 
 #include "./bt_packet.hpp"
 
+#define MAX_PKT_SIZE 1024
+
 namespace Bluetooth_Connection
 {
     /*
@@ -26,7 +28,16 @@ namespace Bluetooth_Connection
 
         bool is_quit{false};
 
+        bool connection_created{false};
+
         // bluetooth variables
+
+        struct sockaddr_l2 loc_addr = {0};
+        struct sockaddr_l2 rem_addr = {0};
+        int s{0};
+        int client{0};
+        int bytes_read{0};
+        socklen_t opt{sizeof(sockaddr_l2)};
 
         // end bluetooth variables
 
@@ -35,8 +46,8 @@ namespace Bluetooth_Connection
         Server(std::string addr);
         ~Server();
 
-        int open(std::string addr);
-        int close();
+        int open_con(std::string addr);
+        int close_con();
 
         size_t available();
         std::vector<Packet> get_all();
@@ -60,6 +71,7 @@ Bluetooth_Connection::Server::Server()
  */
 Bluetooth_Connection::Server::Server(std::string addr)
 {
+    open_con(addr);
 }
 
 /**
@@ -67,6 +79,7 @@ Bluetooth_Connection::Server::Server(std::string addr)
  */
 Bluetooth_Connection::Server::~Server()
 {
+    close_con();
 }
 
 /**
@@ -74,16 +87,41 @@ Bluetooth_Connection::Server::~Server()
  * @param addr The bluetooth address of device to connect to.
  * @returns 0 on success.
  */
-int Bluetooth_Connection::Server::open(std::__cxx11::string addr)
+int Bluetooth_Connection::Server::open_con(std::string addr)
 {
+    // allocate socket
+    s = socket(AF_BLUETOOTH, SOCK_SEQPACKET, BTPROTO_L2CAP);
+
+    // bind socket to port 0x1001 of the first available
+    // bluetooth adapter
+    bdaddr_t tmp = {{0, 0, 0, 0, 0, 0}};
+    loc_addr.l2_family = AF_BLUETOOTH;
+    loc_addr.l2_bdaddr = tmp;
+    loc_addr.l2_psm = htobs(0x1001);
+
+    bind(s, (struct sockaddr *)&loc_addr, sizeof(sockaddr_l2));
+
+    // put socket into listening mode
+    listen(s, 1);
+
+    // accept one connection
+    client = accept(s, (struct sockaddr *)&rem_addr, &opt);
+    if(client != -1)
+        connection_created = true;
+
+    return client;
 }
 
 /**
  * close: Closes existing bluetooth connection.
  * @return 0 on success.
  */
-int Bluetooth_Connection::Server::close()
+int Bluetooth_Connection::Server::close_con()
 {
+    close(client);
+    close(s);
+    connection_created = false;
+    return 0;
 }
 
 /**
@@ -92,6 +130,7 @@ int Bluetooth_Connection::Server::close()
  */
 size_t Bluetooth_Connection::Server::available()
 {
+    return pkt_buffer.size();
 }
 
 /**
@@ -99,6 +138,7 @@ size_t Bluetooth_Connection::Server::available()
  */
 void Bluetooth_Connection::Server::quit()
 {
+    is_quit = true;
 }
 
 /**
@@ -106,4 +146,23 @@ void Bluetooth_Connection::Server::quit()
  */
 void Bluetooth_Connection::Server::run()
 {
+    if (connection_created == false)
+        return;
+
+    uint8_t buffer[MAX_PKT_SIZE] {0};
+
+    while (is_quit == false)
+    {
+        ba2str(&rem_addr.l2_bdaddr, reinterpret_cast<char *>(buffer));
+        fprintf(stderr, "accepted connection from %s\n", buffer);
+
+        memset(buffer, 0, MAX_PKT_SIZE);
+
+        // read data from the client
+        bytes_read = read(client, buffer, MAX_PKT_SIZE);
+        if (bytes_read > 0)
+        {
+            printf("received [%s]\n", buffer);
+        }
+    }
 }
