@@ -3,9 +3,9 @@ Make:
 	./main.out
 
 client:
-	g++ test_client.cpp -lbluetooth -g -o test_client.out
+	g++ test_client.cpp -lbluetooth -pthread -g -o test_client.out
 	./test_client.out
 
 server:
-	g++ test_server.cpp -lbluetooth -g -o test_server.out
+	g++ test_server.cpp -lbluetooth -pthread -g -o test_server.out
 	./test_server.out

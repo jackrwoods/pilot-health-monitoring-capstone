@@ -20,7 +20,7 @@ namespace Bluetooth_Connection
         Packet();
 
     public:
-        Packet(size_t len, void *src);
+        Packet(size_t len, const void *src);
         Packet(const Packet &p);
 
         ~Packet();
@@ -56,7 +56,7 @@ Bluetooth_Connection::Packet::Packet(const Bluetooth_Connection::Packet &p)
  * @param len Size of the new packet in bytes
  * @param src Location of the data to construct the packet from
  */
-    Bluetooth_Connection::Packet::Packet(size_t len, void *src)
+    Bluetooth_Connection::Packet::Packet(size_t len, const void *src)
     {
         timestamp = std::chrono::system_clock::now();
         data = new uint8_t[len];
