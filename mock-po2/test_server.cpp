@@ -7,7 +7,7 @@ int main()
 {
     std::cout << "Server Test" << std::endl;
     PHMS_Bluetooth::Server s;
-    s.open_con("");
+    s.open_con();
 
     std::thread server(&PHMS_Bluetooth::Server::run, &s);
 

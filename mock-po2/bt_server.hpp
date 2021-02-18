@@ -44,10 +44,9 @@ namespace PHMS_Bluetooth
 
     public:
         Server();
-        Server(std::string addr);
         ~Server();
 
-        int open_con(std::string addr);
+        int open_con();
         int close_con();
 
         size_t available();
@@ -60,19 +59,11 @@ namespace PHMS_Bluetooth
 } // namespace PHMS_Bluetooth
 
 /**
- * Default constructor.
+ * Constructor with connection creation.
  */
 PHMS_Bluetooth::Server::Server()
 {
-}
-
-/**
- * Constructor with connection creation.
- * @param addr Bluetooth address to connect to.
- */
-PHMS_Bluetooth::Server::Server(std::string addr)
-{
-    open_con(addr);
+    open_con();
 }
 
 /**
@@ -88,7 +79,7 @@ PHMS_Bluetooth::Server::~Server()
  * @param addr The bluetooth address of device to connect to.
  * @returns 0 on success.
  */
-int PHMS_Bluetooth::Server::open_con(std::string addr)
+int PHMS_Bluetooth::Server::open_con()
 {
     // allocate socket
     s = socket(AF_BLUETOOTH, SOCK_SEQPACKET, BTPROTO_L2CAP);
