@@ -163,7 +163,10 @@ void Bluetooth_Connection::Server::run()
         bytes_read = read(client, buffer, MAX_PKT_SIZE);
         if (bytes_read > 0)
         {
-            printf("received [%s]\n", buffer);
+            // printf("received [%s]\n", buffer);
+            pkt_guard.lock();
+            pkt_buffer.push_back(Packet(bytes_read, buffer));
+            pkt_guard.unlock();
         }
     }
 }
