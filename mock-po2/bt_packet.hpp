@@ -51,65 +51,82 @@ Bluetooth_Connection::Packet::Packet(const Bluetooth_Connection::Packet &p)
     memcpy(data, p.data, length);
 }
 
-    /**
+/**
  * Packet: Create a packet
  * @param len Size of the new packet in bytes
  * @param src Location of the data to construct the packet from
  */
-    Bluetooth_Connection::Packet::Packet(size_t len, const void *src)
-    {
-        timestamp = std::chrono::system_clock::now();
-        data = new uint8_t[len];
-        length = len;
-        memcpy(data, src, len);
-    }
+Bluetooth_Connection::Packet::Packet(size_t len, const void *src)
+{
+    timestamp = std::chrono::system_clock::now();
+    data = new uint8_t[len];
+    length = len;
+    memcpy(data, src, len);
+}
 
-    Bluetooth_Connection::Packet::~Packet()
-    {
-        if (data != nullptr)
-            delete[] data;
-    }
+Bluetooth_Connection::Packet::~Packet()
+{
+    if (data != nullptr)
+        delete[] data;
+}
 
-    /**
+/**
  * size: Return the size in bytes of the packet.
  */
-    size_t Bluetooth_Connection::Packet::size()
-    {
-        return length;
-    }
+size_t Bluetooth_Connection::Packet::size()
+{
+    return length;
+}
 
-    /**
+/**
  * time: Return the time the packet was recevied.
  */
-    std::chrono::system_clock::time_point Bluetooth_Connection::Packet::time()
-    {
-        return timestamp;
-    }
+std::chrono::system_clock::time_point Bluetooth_Connection::Packet::time()
+{
+    return timestamp;
+}
 
-    /**
+/**
  * get: Return a pointer to the data held inside the packet.
  */
-    const uint8_t *Bluetooth_Connection::Packet::get()
-    {
-        return data;
-    }
+const uint8_t *Bluetooth_Connection::Packet::get()
+{
+    return data;
+}
 
-    /**
+/**
  * print: Print the contents of the packet
  */
-    void Bluetooth_Connection::Packet::print()
+void Bluetooth_Connection::Packet::print()
+{
+    printf("== PACKET ============================\n");
+    printf("= timestamp: %12u            =\n", timestamp.time_since_epoch());
+    printf("= length: %4i                       =\n", length);
+    printf("======================================");
+    for (int i = 0; i < (length / 8) + 1; i++)
     {
-        printf("== PACKET ===================\n");
-        printf("= timestamp: %u\n", timestamp.time_since_epoch());
-        printf("= length: %i\n", length);
-        printf("= data:");
-        for (int i = 0; i < length; i++)
+        printf("\n= ");
+        // hex
+        for (int j = 0; j < 8; j++)
         {
-            if (i % 8 == 0)
-            {
-                printf("\n= ");
-            }
-            printf("%.2x ", data[i]);
+            if ((i * 8) + j < length)
+                printf("%.2x ", data[(i * 8) + j]);
+            else
+                printf("   ");
         }
-        printf("\n=============================\n");
+
+        printf("| ");
+
+        // char
+        for (int j = 0; j < 8; j++)
+        {
+            if ((i * 8) + j < length)
+                (data[(i * 8) + j] >= 33 && data[(i * 8) + j] <= 126) ? printf("%c", data[(i * 8) + j]) : printf(".");
+            else
+                printf(" ");
+        }
+
+        printf(" =");
     }
+    printf("\n======================================\n");
+}
