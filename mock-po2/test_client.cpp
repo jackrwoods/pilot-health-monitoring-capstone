@@ -13,8 +13,13 @@ int main(int argc, char *argv[])
 
     std::cout << "Client Test" << std::endl;
     Bluetooth_Connection::Client c;
+
+    int con_stat = c.open_con(std::string(argv[1]));
+    if(con_stat == -1) {
+        std::cerr << "Error opening connection." << std::endl;
+        return 1;
+    }
     
-    std::cout << "Opening connection: " << c.open_con(std::string(argv[1])) << std::endl;
 
     std::thread client(&Bluetooth_Connection::Client::run, &c);
 

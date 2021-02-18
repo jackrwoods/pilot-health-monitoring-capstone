@@ -14,6 +14,11 @@ int main()
     std::string q;
     std::getline(std::cin, q);
 
+    std::vector<Bluetooth_Connection::Packet> packets = s.get_all();
+
+    for(auto i = packets.begin(); i != packets.end(); i++)
+        i->print();
+
     s.quit();
     server.join();
 
