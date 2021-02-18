@@ -20,10 +20,6 @@
 // https://people.csail.mit.edu/albert/bluez-intro/x559.html
 // uses l2cap sockets?
 
-/**
- * Bluetooth_Connection
- * Create a read/write connection with a bluetooth device.
- */
 namespace Bluetooth_Connection
 {
 
@@ -38,63 +34,8 @@ namespace Bluetooth_Connection
 
     std::vector<Possible_Connection> available_connections();
 
-    class Connection
-    {
-    private:
-        Client client;
-        Server server;
-
-    public:
-        Connection(std::string addr);
-        ~Connection();
-
-        bool open_connection(std::string addr);
-        bool close_connection();
-
-        bool active();
-
-        size_t send(Packet &&p);
-        size_t receive(void *dest, size_t max_len);
-    };
-
 } // namespace Bluetooth_Connection
 
-Bluetooth_Connection::Connection::Connection(std::string addr)
-{
-    open_connection(addr);
-}
-
-Bluetooth_Connection::Connection::~Connection()
-{
-}
-
-/**
- * open_connection: Creates a bluetooth connection.
- * @param addr the bluetooth address of device to connect to.
- * @returns True if a connection was created, false otherwise.
- */
-bool Bluetooth_Connection::Connection::open_connection(std::string addr)
-{
-    return false;
-}
-
-/**
- * close_connection: Closes any open bluetooth connections.
- * @returns True if a connection was closed, false otherwise.
- */
-bool Bluetooth_Connection::Connection::close_connection()
-{
-    return false;
-}
-
-/**
- * active: Is there an active bluetooth connection.
- * @returns True if there is an active bluetooth connection, false otherwise.
- */
-bool Bluetooth_Connection::Connection::active()
-{
-    return false;
-}
 
 /**
  * available_connections: Construct and return a vector of available bluetooth connections.
