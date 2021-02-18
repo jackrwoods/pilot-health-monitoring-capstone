@@ -28,8 +28,6 @@ namespace Bluetooth_Connection
 
         // bluetooth variables
 
-
-
         // end bluetooth variables
 
     public:
@@ -47,3 +45,65 @@ namespace Bluetooth_Connection
         void run();
     };
 } // namespace Bluetooth_Connection
+
+/**
+ * Default constructor.
+ */
+Bluetooth_Connection::Client::Client()
+{
+}
+
+/**
+ * Constructor with connection creation.
+ * @param addr Bluetooth address to connect to.
+ */
+Bluetooth_Connection::Client::Client(std::string addr)
+{
+}
+
+/**
+ * Default destructor
+ */
+Bluetooth_Connection::Client::~Client()
+{
+}
+
+/**
+ * open: Creates a bluetooth connection.
+ * @param addr The bluetooth address of device to connect to.
+ * @returns 0 on success.
+ */
+int Bluetooth_Connection::Client::open(std::string addr)
+{
+}
+
+/**
+ * close: Closes existing bluetooth connection.
+ * @return 0 on success.
+ */
+int Bluetooth_Connection::Client::close()
+{
+}
+
+/**
+ * push: Add a packet to the queue to be transmitted over bluetooth.
+ * @param p The packet to be transmitted.
+ * @returns True if a connection was created, false otherwise.
+ */
+void Bluetooth_Connection::Client::push(const Bluetooth_Connection::Packet &p)
+{
+}
+
+/**
+ * quit: Stops execution of the run() function.
+ */
+void Bluetooth_Connection::Client::quit()
+{
+}
+
+/**
+ * run: Thread entry point. Sends packets from the pkt_queue until quit() is called.
+ */
+void Bluetooth_Connection::Client::run()
+{
+}
