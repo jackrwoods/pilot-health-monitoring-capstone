@@ -4,7 +4,7 @@
 #include <memory>
 #include <cstring>
 
-namespace Bluetooth_Connection
+namespace PHMS_Bluetooth
 {
     /*
     * Packet: Timestamped packet for arbitrary data
@@ -31,9 +31,9 @@ namespace Bluetooth_Connection
 
         void print();
     };
-} // namespace Bluetooth_Connection
+} // namespace PHMS_Bluetooth
 
-Bluetooth_Connection::Packet::Packet()
+PHMS_Bluetooth::Packet::Packet()
 {
     timestamp = std::chrono::system_clock::now();
 }
@@ -42,7 +42,7 @@ Bluetooth_Connection::Packet::Packet()
  * Copy constructor
  * TODO: this should probably be a move constructor. I can't figure it out, though...
  */
-Bluetooth_Connection::Packet::Packet(const Bluetooth_Connection::Packet &p)
+PHMS_Bluetooth::Packet::Packet(const PHMS_Bluetooth::Packet &p)
 {
     length = p.length;
     timestamp = p.timestamp;
@@ -56,7 +56,7 @@ Bluetooth_Connection::Packet::Packet(const Bluetooth_Connection::Packet &p)
  * @param len Size of the new packet in bytes
  * @param src Location of the data to construct the packet from
  */
-Bluetooth_Connection::Packet::Packet(size_t len, const void *src)
+PHMS_Bluetooth::Packet::Packet(size_t len, const void *src)
 {
     timestamp = std::chrono::system_clock::now();
     data = new uint8_t[len];
@@ -64,7 +64,7 @@ Bluetooth_Connection::Packet::Packet(size_t len, const void *src)
     memcpy(data, src, len);
 }
 
-Bluetooth_Connection::Packet::~Packet()
+PHMS_Bluetooth::Packet::~Packet()
 {
     if (data != nullptr)
         delete[] data;
@@ -73,7 +73,7 @@ Bluetooth_Connection::Packet::~Packet()
 /**
  * size: Return the size in bytes of the packet.
  */
-size_t Bluetooth_Connection::Packet::size()
+size_t PHMS_Bluetooth::Packet::size()
 {
     return length;
 }
@@ -81,7 +81,7 @@ size_t Bluetooth_Connection::Packet::size()
 /**
  * time: Return the time the packet was recevied.
  */
-std::chrono::system_clock::time_point Bluetooth_Connection::Packet::time()
+std::chrono::system_clock::time_point PHMS_Bluetooth::Packet::time()
 {
     return timestamp;
 }
@@ -89,7 +89,7 @@ std::chrono::system_clock::time_point Bluetooth_Connection::Packet::time()
 /**
  * get: Return a pointer to the data held inside the packet.
  */
-const uint8_t *Bluetooth_Connection::Packet::get()
+const uint8_t *PHMS_Bluetooth::Packet::get()
 {
     return data;
 }
@@ -97,7 +97,7 @@ const uint8_t *Bluetooth_Connection::Packet::get()
 /**
  * print: Print the contents of the packet
  */
-void Bluetooth_Connection::Packet::print()
+void PHMS_Bluetooth::Packet::print()
 {
     printf("== PACKET ============================\n");
     printf("= timestamp: %12u            =\n", timestamp.time_since_epoch());

@@ -14,7 +14,7 @@
 
 #define MAX_PKT_SIZE 1024
 
-namespace Bluetooth_Connection
+namespace PHMS_Bluetooth
 {
     /*
     * Server: Bluetooth server
@@ -57,12 +57,12 @@ namespace Bluetooth_Connection
 
         void run();
     };
-} // namespace Bluetooth_Connection
+} // namespace PHMS_Bluetooth
 
 /**
  * Default constructor.
  */
-Bluetooth_Connection::Server::Server()
+PHMS_Bluetooth::Server::Server()
 {
 }
 
@@ -70,7 +70,7 @@ Bluetooth_Connection::Server::Server()
  * Constructor with connection creation.
  * @param addr Bluetooth address to connect to.
  */
-Bluetooth_Connection::Server::Server(std::string addr)
+PHMS_Bluetooth::Server::Server(std::string addr)
 {
     open_con(addr);
 }
@@ -78,7 +78,7 @@ Bluetooth_Connection::Server::Server(std::string addr)
 /**
  * Default destructor
  */
-Bluetooth_Connection::Server::~Server()
+PHMS_Bluetooth::Server::~Server()
 {
     close_con();
 }
@@ -88,7 +88,7 @@ Bluetooth_Connection::Server::~Server()
  * @param addr The bluetooth address of device to connect to.
  * @returns 0 on success.
  */
-int Bluetooth_Connection::Server::open_con(std::string addr)
+int PHMS_Bluetooth::Server::open_con(std::string addr)
 {
     // allocate socket
     s = socket(AF_BLUETOOTH, SOCK_SEQPACKET, BTPROTO_L2CAP);
@@ -117,7 +117,7 @@ int Bluetooth_Connection::Server::open_con(std::string addr)
  * close: Closes existing bluetooth connection.
  * @return 0 on success.
  */
-int Bluetooth_Connection::Server::close_con()
+int PHMS_Bluetooth::Server::close_con()
 {
     close(client);
     close(s);
@@ -129,7 +129,7 @@ int Bluetooth_Connection::Server::close_con()
  * available: Get the number of available Packets.
  * @return Number of available Packets.
  */
-size_t Bluetooth_Connection::Server::available()
+size_t PHMS_Bluetooth::Server::available()
 {
     return pkt_buffer.size();
 }
@@ -137,7 +137,7 @@ size_t Bluetooth_Connection::Server::available()
 /**
  * quit: Stops execution of the run() function.
  */
-void Bluetooth_Connection::Server::quit()
+void PHMS_Bluetooth::Server::quit()
 {
     is_quit = true;
 }
@@ -145,7 +145,7 @@ void Bluetooth_Connection::Server::quit()
 /**
  * run: Thread entry point. Receives packets until quit() is called.
  */
-void Bluetooth_Connection::Server::run()
+void PHMS_Bluetooth::Server::run()
 {
     if (connection_created == false)
         return;
@@ -165,7 +165,7 @@ void Bluetooth_Connection::Server::run()
         {
             // printf("received [%s]\n", buffer);
             pkt_guard.lock();
-            Bluetooth_Connection::Packet p(bytes_read, buffer);
+            PHMS_Bluetooth::Packet p(bytes_read, buffer);
             pkt_buffer.push_back(p);
             pkt_guard.unlock();
         }
@@ -177,7 +177,7 @@ void Bluetooth_Connection::Server::run()
  * Clears the packet buffer.
  * TODO: This is super inefficient. Gets the job done I guess.
  */
-std::vector<Bluetooth_Connection::Packet> Bluetooth_Connection::Server::get_all()
+std::vector<PHMS_Bluetooth::Packet> PHMS_Bluetooth::Server::get_all()
 {
     std::vector<Packet> ret = pkt_buffer;
     pkt_buffer.clear();

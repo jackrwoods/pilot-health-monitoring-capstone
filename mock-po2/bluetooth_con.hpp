@@ -20,7 +20,7 @@
 // https://people.csail.mit.edu/albert/bluez-intro/x559.html
 // uses l2cap sockets?
 
-namespace Bluetooth_Connection
+namespace PHMS_Bluetooth
 {
 
     /**
@@ -34,14 +34,14 @@ namespace Bluetooth_Connection
 
     std::vector<Possible_Connection> available_connections();
 
-} // namespace Bluetooth_Connection
+} // namespace PHMS_Bluetooth
 
 
 /**
  * available_connections: Construct and return a vector of available bluetooth connections.
  * @returns std::vector<Connection> listing all available bluetooth connections.
  */
-std::vector<Bluetooth_Connection::Possible_Connection> Bluetooth_Connection::available_connections()
+std::vector<PHMS_Bluetooth::Possible_Connection> PHMS_Bluetooth::available_connections()
 {
     // most of this code was adapted(stolen) from: https://people.csail.mit.edu/albert/bluez-intro/c404.html
 

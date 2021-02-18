@@ -12,7 +12,7 @@
 
 #include "./bt_packet.hpp"
 
-namespace Bluetooth_Connection
+namespace PHMS_Bluetooth
 {
     /*
     * Client: Bluetooth client
@@ -51,12 +51,12 @@ namespace Bluetooth_Connection
 
         void run();
     };
-} // namespace Bluetooth_Connection
+} // namespace PHMS_Bluetooth
 
 /**
  * Default constructor.
  */
-Bluetooth_Connection::Client::Client()
+PHMS_Bluetooth::Client::Client()
 {
 }
 
@@ -64,7 +64,7 @@ Bluetooth_Connection::Client::Client()
  * Constructor with connection creation.
  * @param addr Bluetooth address to connect to.
  */
-Bluetooth_Connection::Client::Client(std::string addr)
+PHMS_Bluetooth::Client::Client(std::string addr)
 {
     open_con(addr);
 }
@@ -72,7 +72,7 @@ Bluetooth_Connection::Client::Client(std::string addr)
 /**
  * Default destructor
  */
-Bluetooth_Connection::Client::~Client()
+PHMS_Bluetooth::Client::~Client()
 {
     close_con();
 }
@@ -82,7 +82,7 @@ Bluetooth_Connection::Client::~Client()
  * @param addr The bluetooth address of device to connect to.
  * @returns 0 on success.
  */
-int Bluetooth_Connection::Client::open_con(std::string addr)
+int PHMS_Bluetooth::Client::open_con(std::string addr)
 {
     // allocate a socket
     s = socket(AF_BLUETOOTH, SOCK_SEQPACKET, BTPROTO_L2CAP);
@@ -105,7 +105,7 @@ int Bluetooth_Connection::Client::open_con(std::string addr)
  * close: Closes existing bluetooth connection.
  * @return 0 on success.
  */
-int Bluetooth_Connection::Client::close_con()
+int PHMS_Bluetooth::Client::close_con()
 {
     close(s);
     connection_created = false;
@@ -117,7 +117,7 @@ int Bluetooth_Connection::Client::close_con()
  * @param p The packet to be transmitted.
  * @returns True if a connection was created, false otherwise.
  */
-void Bluetooth_Connection::Client::push(const Bluetooth_Connection::Packet &p)
+void PHMS_Bluetooth::Client::push(const PHMS_Bluetooth::Packet &p)
 {
     pkt_guard.lock();
     pkt_queue.push(p);
@@ -127,7 +127,7 @@ void Bluetooth_Connection::Client::push(const Bluetooth_Connection::Packet &p)
 /**
  * quit: Stops execution of the run() function.
  */
-void Bluetooth_Connection::Client::quit()
+void PHMS_Bluetooth::Client::quit()
 {
     is_quit = true;
 }
@@ -135,7 +135,7 @@ void Bluetooth_Connection::Client::quit()
 /**
  * run: Thread entry point. Sends packets from the pkt_queue until quit() is called.
  */
-void Bluetooth_Connection::Client::run()
+void PHMS_Bluetooth::Client::run()
 {
     // do not attempt to transmit data if a connection has not been created.
     if (connection_created == false)

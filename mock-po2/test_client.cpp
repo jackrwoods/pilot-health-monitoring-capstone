@@ -12,7 +12,7 @@ int main(int argc, char *argv[])
     }
 
     std::cout << "Client Test" << std::endl;
-    Bluetooth_Connection::Client c;
+    PHMS_Bluetooth::Client c;
 
     int con_stat = c.open_con(std::string(argv[1]));
     if(con_stat == -1) {
@@ -21,13 +21,13 @@ int main(int argc, char *argv[])
     }
     
 
-    std::thread client(&Bluetooth_Connection::Client::run, &c);
+    std::thread client(&PHMS_Bluetooth::Client::run, &c);
 
     std::string in;
     while (in != "q")
     {
         std::getline(std::cin, in);
-        Bluetooth_Connection::Packet p(in.length(), in.c_str());
+        PHMS_Bluetooth::Packet p(in.length(), in.c_str());
         c.push(p);
     }
 
