@@ -4,6 +4,7 @@
 #include <string>
 #include <queue>
 #include <mutex>
+#include <unistd.h>
 
 #include <sys/socket.h>
 #include <bluetooth/bluetooth.h>
