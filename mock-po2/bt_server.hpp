@@ -107,7 +107,7 @@ int Bluetooth_Connection::Server::open_con(std::string addr)
 
     // accept one connection
     client = accept(s, (struct sockaddr *)&rem_addr, &opt);
-    if(client != -1)
+    if (client != -1)
         connection_created = true;
 
     return client;
@@ -150,7 +150,7 @@ void Bluetooth_Connection::Server::run()
     if (connection_created == false)
         return;
 
-    uint8_t buffer[MAX_PKT_SIZE] {0};
+    uint8_t buffer[MAX_PKT_SIZE]{0};
 
     while (is_quit == false)
     {
@@ -165,8 +165,21 @@ void Bluetooth_Connection::Server::run()
         {
             // printf("received [%s]\n", buffer);
             pkt_guard.lock();
-            pkt_buffer.push_back(Packet(bytes_read, buffer));
+            Bluetooth_Connection::Packet p(bytes_read, buffer);
+            pkt_buffer.push_back(p);
             pkt_guard.unlock();
         }
     }
+}
+
+/**
+ * get_all: Get a vector containing all received packets.
+ * Clears the packet buffer.
+ * TODO: This is super inefficient. Gets the job done I guess.
+ */
+std::vector<Bluetooth_Connection::Packet> Bluetooth_Connection::Server::get_all()
+{
+    std::vector<Packet> ret = pkt_buffer;
+    pkt_buffer.clear();
+    return ret;
 }
