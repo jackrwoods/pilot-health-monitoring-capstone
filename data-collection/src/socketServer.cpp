@@ -7,6 +7,9 @@
 #include "server_ws.hpp"
 #include "max30100Datasource.cpp"
 
+#include <ctime>
+#include <cstdlib>
+
 using WsServer = SimpleWeb::SocketServer<SimpleWeb::WS>;
 
 WsServer server;
@@ -15,21 +18,26 @@ WsServer server;
 // This produces a json string and sends it to all websocket clients.
 void sendDataToAllClients(struct RawOutput* data) {
 	if (data->deviceType == MAX30100) {
+		//TEMP MOCK DATA GENERATION
+		srand(time(NULL));
+
 		std::string json = "{\"timestamp\": ";
 		json += std::to_string(data->timestamp);
 		json += ",\"temperature\": ";
 		json += std::to_string(data->values[0].value);
-		json += ", \"ir\": ";
-		json += std::to_string(data->values[1].value);
-		json +=	", \"r\": ";
-		json += std::to_string(data->values[2].value);
+		json += ", \"HR\": ";
+		json += std::to_string(5.0 * sin(rand() % 100) + 80);
+		json +=	", \"SpO2\": ";
+		json += std::to_string(5.0 * sin(rand() % 10) + 95);
 		json += ", \"sentTimestamp\": ";
 		json += std::to_string(std::chrono::time_point_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now()).time_since_epoch().count());
 		json += "}";
 
 		// Send the latest datapoint to all clients
 		for (auto &c : server.get_connections()) {
-			c->send(json);
+			if (c->path == "/data") {
+				c->send(json);
+			}
 		}
 	}
 }
@@ -38,21 +46,43 @@ int main() {
 	// Start the websocket server on port 8080 using 1 thread
 	server.config.port = 8080;
 
-	auto &echo = server.endpoint["^/echo/?$"];
-	echo.on_open = [](std::shared_ptr<WsServer::Connection> connection) {
+	// Configure the ping endpoint
+	auto &ping = server.endpoint["^/ping/?$"];
+	ping.on_handshake = [](std::shared_ptr<WsServer::Connection> /*connection*/, SimpleWeb::CaseInsensitiveMultimap & /*response_header*/) {
+		return SimpleWeb::StatusCode::information_switching_protocols;
+		// Upgrade to websocket
+	};
+	ping.on_open = [](std::shared_ptr<WsServer::Connection> connection) {
 		std::cout << "Server: Opened connection " << connection.get() << "\n";
 	};
 	// See RFC 6455 7.4.1. for status codes
-	echo.on_close = [](std::shared_ptr<WsServer::Connection> connection, int status, const std::string & /*reason*/) {
+	ping.on_close = [](std::shared_ptr<WsServer::Connection> connection, int status, const std::string & /*reason*/) {
+		std::cout << "Server: Closed connection " << connection.get() << " with status code " << status << "\n";
+	};
+	ping.on_error = [](std::shared_ptr<WsServer::Connection> connection, const SimpleWeb::error_code &ec) {
+		std::cout << "Server: Error in connection " << connection.get() << ". "
+			<< "Error: " << ec << ", error message: " << ec.message() << "\n";
+	};
+	ping.on_message = [](std::shared_ptr<WsServer::Connection> connection, std::shared_ptr<WsServer::InMessage> msg) {
+		connection->send(":)");
+	};
+
+	// Configure data endpoint
+	auto &data = server.endpoint["^/data/?$"];
+	data.on_open = [](std::shared_ptr<WsServer::Connection> connection) {
+		std::cout << "Server: Opened connection " << connection.get() << "\n";
+	};
+	// See RFC 6455 7.4.1. for status codes
+	data.on_close = [](std::shared_ptr<WsServer::Connection> connection, int status, const std::string & /*reason*/) {
 		std::cout << "Server: Closed connection " << connection.get() << " with status code " << status << "\n";
 	};
 	// Can modify handshake response headers here if needed
-	echo.on_handshake = [](std::shared_ptr<WsServer::Connection> /*connection*/, SimpleWeb::CaseInsensitiveMultimap & /*response_header*/) {
+	data.on_handshake = [](std::shared_ptr<WsServer::Connection> /*connection*/, SimpleWeb::CaseInsensitiveMultimap & /*response_header*/) {
 		return SimpleWeb::StatusCode::information_switching_protocols;
 		// Upgrade to websocket
 	};
 	// See http://www.boost.org/doc/libs/1_55_0/doc/html/boost_asio/reference.html, Error Codes for error code meanings
-	echo.on_error = [](std::shared_ptr<WsServer::Connection> connection, const SimpleWeb::error_code &ec) {
+	data.on_error = [](std::shared_ptr<WsServer::Connection> connection, const SimpleWeb::error_code &ec) {
 		std::cout << "Server: Error in connection " << connection.get() << ". "
 			<< "Error: " << ec << ", error message: " << ec.message() << "\n";
 	};
