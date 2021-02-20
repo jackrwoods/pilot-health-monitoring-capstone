@@ -46,6 +46,7 @@ namespace PHMS_Bluetooth
         int close_con();
 
         void push(const Packet &p);
+        void push(const void* src, size_t len);
 
         void quit();
 
@@ -122,6 +123,15 @@ void PHMS_Bluetooth::Client::push(const PHMS_Bluetooth::Packet &p)
     pkt_guard.lock();
     pkt_queue.push(p);
     pkt_guard.unlock();
+}
+
+/**
+ * push: Add data to be transmitted over bluetooth.
+ * @param src Location of data to be put into packet.
+ * @param len Number of bytes to be transmitted.
+ */
+void PHMS_Bluetooth::Client::push(const void *src, size_t len) {
+    push(PHMS_Bluetooth::Packet(len, src));
 }
 
 /**

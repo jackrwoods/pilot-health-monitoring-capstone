@@ -43,7 +43,6 @@ namespace PHMS_Bluetooth
         // end bluetooth variables
 
     public:
-        Server();
         ~Server();
 
         int open_con();
@@ -57,14 +56,6 @@ namespace PHMS_Bluetooth
         void run();
     };
 } // namespace PHMS_Bluetooth
-
-/**
- * Constructor with connection creation.
- */
-PHMS_Bluetooth::Server::Server()
-{
-    open_con();
-}
 
 /**
  * Default destructor
@@ -81,6 +72,9 @@ PHMS_Bluetooth::Server::~Server()
  */
 int PHMS_Bluetooth::Server::open_con()
 {
+    if(connection_created == true)
+        return -1;
+
     // allocate socket
     s = socket(AF_BLUETOOTH, SOCK_SEQPACKET, BTPROTO_L2CAP);
 
@@ -99,7 +93,12 @@ int PHMS_Bluetooth::Server::open_con()
     // accept one connection
     client = accept(s, (struct sockaddr *)&rem_addr, &opt);
     if (client != -1)
+    {
         connection_created = true;
+        char buffer[256]{0};
+        ba2str(&rem_addr.l2_bdaddr, reinterpret_cast<char *>(buffer));
+        fprintf(stderr, "accepted connection from %s\n", buffer);
+    }
 
     return client;
 }
@@ -145,9 +144,6 @@ void PHMS_Bluetooth::Server::run()
 
     while (is_quit == false)
     {
-        ba2str(&rem_addr.l2_bdaddr, reinterpret_cast<char *>(buffer));
-        fprintf(stderr, "accepted connection from %s\n", buffer);
-
         memset(buffer, 0, MAX_PKT_SIZE);
 
         // read data from the client
@@ -170,7 +166,9 @@ void PHMS_Bluetooth::Server::run()
  */
 std::vector<PHMS_Bluetooth::Packet> PHMS_Bluetooth::Server::get_all()
 {
+    pkt_guard.lock();
     std::vector<Packet> ret = pkt_buffer;
     pkt_buffer.clear();
+    pkt_guard.unlock();
     return ret;
 }
