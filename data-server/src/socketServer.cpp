@@ -30,7 +30,7 @@ class WebSocketServer {
 				json += "}";
 
 				// Send the latest datapoint to all clients
-				for (auto &c : server.get_connections()) {
+				for (auto &c : this->server.get_connections()) {
 					c->send(json);
 				}
 			}
@@ -39,9 +39,9 @@ class WebSocketServer {
 
 		WebSocketServer(Datasource* ds) {
 			// Start the websocket server on port 8080 using 1 thread
-			server.config.port = 8080;
+			this->server.config.port = 8080;
 
-			auto &echo = server.endpoint["^/echo/?$"];
+			auto &echo = this->server.endpoint["^/echo/?$"];
 			echo.on_open = [](std::shared_ptr<WsServer::Connection> connection) {
 				std::cout << "Server: Opened connection " << connection.get() << "\n";
 			};
@@ -63,7 +63,7 @@ class WebSocketServer {
 			std::promise<unsigned short> server_port;
 			std::thread server_thread([&server_port]() {
 				// Start server
-				server.start([&server_port](unsigned short port) {
+				this->server.start([&server_port](unsigned short port) {
 					server_port.set_value(port);
 				});
 			});
