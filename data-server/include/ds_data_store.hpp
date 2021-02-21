@@ -67,7 +67,6 @@ public:
     uint32_t get_ece_bpm() const;
     uint32_t get_ece_po2() const;
 
-    int new_data(Sample *src, size_t len);
     int new_data(Sample *s);
 
     void register_reader_thread();
@@ -85,7 +84,7 @@ public:
 template <class LENGTH>
 Data_Store<LENGTH>::Data_Store(Datasource* ds) {
     	// Listen to the datasource for new data asynchronously
-		std::function<void(struct Sample*)> callback = std::bind(static_cast<void (*)(struct Sample*)>&Data_Store::new_data, this, std::placeholders::_1);
+		std::function<void(struct Sample*)> callback(std::bind(&Data_Store::new_data, this, std::placeholders::_1));
 		ds->registerCallback(callback);
 }
 
@@ -187,18 +186,6 @@ template <class LENGTH>
 uint32_t Data_Store<LENGTH>::get_ece_po2() const
 {
     return ece_po2;
-}
-
-/**
- * new_data: Add one or more Samples to the data buffer
- * @param src: Pointer to beginning of Sample buffer to be added
- * @param len: Number of Samples to be added
- * @returns Number of Samples successfully added to buffer
- */
-template <class LENGTH>
-int Data_Store<LENGTH>::new_data(Sample *src, size_t len)
-{
-    return samples.block_write(src, len);
 }
 
 /**
