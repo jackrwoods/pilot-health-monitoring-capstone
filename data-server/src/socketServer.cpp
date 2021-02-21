@@ -5,7 +5,7 @@
 #include "datasource.hpp"
 #include <future>
 #include "server_ws.hpp"
-#include "max30100datasource->cpp"
+#include "max30100datasource.cpp"
 
 #include <ctime>
 #include <cstdlib>
