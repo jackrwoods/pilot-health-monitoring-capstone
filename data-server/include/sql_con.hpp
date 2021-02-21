@@ -42,7 +42,7 @@ SQL_Connection::SQL_Connection() {
 	// Create prepared statements
 	int sqlite3_prepare_v2(
 		this->db,
-		const char "INSERT INTO Samples (ID, Timestamp, R_LED, IR_LED, Temperature, BPM, SpO2, PilotState) VALUES (NULL, ?, ?, ?, ?, ?, ?, ?)",
+		"INSERT INTO Samples (ID, Timestamp, R_LED, IR_LED, Temperature, BPM, SpO2, PilotState) VALUES (NULL, ?, ?, ?, ?, ?, ?, ?)",
 		65536, // Each of these queries can be a maximum of 64KB in length
 		&this->insertSample,
 		NULL
@@ -65,7 +65,7 @@ int SQL_Connection::query_execute(const char *c)
 		c,
 		NULL,  /* Callback function */
 		NULL, /* 1st argument to callback */
-		char **errmsg /* Error msg written here */
+		&errmsg /* Error msg written here */
 	);
 
 	sqlite3_free(errmsg);

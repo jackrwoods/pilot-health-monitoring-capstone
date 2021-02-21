@@ -10,7 +10,8 @@
 using WsServer = SimpleWeb::SocketServer<SimpleWeb::WS>;
 
 class WebSocketServer {
-	private:
+	public:
+
 		WsServer server;
 
 		// Simple datasource callback.
@@ -35,7 +36,6 @@ class WebSocketServer {
 				}
 			}
 		}
-	public:
 
 		WebSocketServer(Datasource* ds) {
 			// Start the websocket server on port 8080 using 1 thread
@@ -72,7 +72,7 @@ class WebSocketServer {
 				<< "\n";
 
 			// Listen to the datasource
-			std::function<void(struct Sample*)> callback = this->sendDataToAllClients;
+			std::function<void(struct Sample*)> callback = sendDataToAllClients;
 			ds->registerCallback(callback);
 		}
 
