@@ -96,6 +96,6 @@ void startServer(Datasource* datasource) {
 
 
 	// Set up the datasource
-	std::function<void(struct RawOutput*)> callback = sendDataToAllClients;
+	std::function<void(struct Sample*)> callback = sendDataToAllClients;
 	datasource.registerCallback(callback);
 }
