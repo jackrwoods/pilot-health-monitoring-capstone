@@ -114,10 +114,11 @@ int SQL_Connection::insert_sample(const Sample s)
 	sqlite3_bind_int(this->insertSample, 7, (int) s.pilotState.value);
 
 	// Execute the query
-	sqlite3_step(this->insertSample);
+	int res = sqlite3_step(this->insertSample);
 
 	// Reset the prepared statement
 	sqlite3_reset(this->insertSample);
+	return res
 }
 
 SQL_Connection::~SQL_Connection() {

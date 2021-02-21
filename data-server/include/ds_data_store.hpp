@@ -85,7 +85,7 @@ public:
 template <class LENGTH>
 Data_Store<LENGTH>::Data_Store(Datasource* ds) {
     	// Listen to the datasource for new data asynchronously
-		std::function<void(struct Sample*)> callback = new_data(Sample*);
+		std::function<void(struct Sample*)> callback = new_data;
 		ds->registerCallback(callback);
 }
 
