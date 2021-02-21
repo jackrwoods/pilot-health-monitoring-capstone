@@ -40,7 +40,7 @@ SQL_Connection::SQL_Connection() {
 	this->query_execute("CREATE TABLE IF NOT EXISTS Samples(ID INTEGER PRIMARY KEY AUTOINCREMENT ASC, Timestamp INTEGER NOT NULL, R_LED INTEGER, IR_LED INTEGER, Temperature REAL, BPM REAL, SpO2 REAL, PilotState INTEGER);");
 
 	// Create prepared statements
-	int sqlite3_prepare_v2(
+	sqlite3_prepare_v2(
 		this->db,
 		"INSERT INTO Samples (ID, Timestamp, R_LED, IR_LED, Temperature, BPM, SpO2, PilotState) VALUES (NULL, ?, ?, ?, ?, ?, ?, ?)",
 		65536, // Each of these queries can be a maximum of 64KB in length
@@ -103,7 +103,7 @@ int SQL_Connection::insert_samples(const std::vector<Sample> &v)
 int SQL_Connection::insert_sample(const Sample s)
 {
 	// Bind the timestamp - long is a 32 bit integer, so 64 should be enough
-	sqlite3_bind_int64(this->insert_sample, 1, s.timestamp.time_since_epoch().count());
+	sqlite3_bind_int64(this->insertSample, 1, s.timestamp.time_since_epoch().count());
 
 	// Bind everything else
 	sqlite3_bind_int(this->insertSample, 2, (int) s.redLED.value);
