@@ -15,16 +15,16 @@ class WebSocketServer {
 
 		// Simple datasource callback.
 		// This produces a json string and sends it to all websocket clients.
-		void sendDataToAllClients(struct RawOutput* data) {
+		void sendDataToAllClients(struct Sample* data) {
 			if (data->deviceType == MAX30100) {
 				std::string json = "{\"timestamp\": ";
-				json += std::to_string(data->timestamp);
+				json += std::to_string(data->timestamp.time_since_epoch().count());
 				json += ",\"temperature\": ";
-				json += std::to_string(data->values[0].value);
+				json += std::to_string(data->temperature.value);
 				json += ", \"ir\": ";
-				json += std::to_string(data->values[1].value);
+				json += std::to_string(data->irLED.value);
 				json +=	", \"r\": ";
-				json += std::to_string(data->values[2].value);
+				json += std::to_string(data->redLED.value);
 				json += ", \"sentTimestamp\": ";
 				json += std::to_string(std::chrono::time_point_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now()).time_since_epoch().count());
 				json += "}";
@@ -72,7 +72,7 @@ class WebSocketServer {
 				<< "\n";
 
 			// Listen to the datasource
-			std::function<void(struct RawOutput*)> callback = this->sendDataToAllClients;
+			std::function<void(struct Sample*)> callback = this->sendDataToAllClients;
 			ds->registerCallback(callback);
 		}
 
