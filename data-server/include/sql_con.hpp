@@ -118,7 +118,7 @@ int SQL_Connection::insert_sample(const Sample s)
 
 	// Reset the prepared statement
 	sqlite3_reset(this->insertSample);
-	return res
+	return res;
 }
 
 SQL_Connection::~SQL_Connection() {
