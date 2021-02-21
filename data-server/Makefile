@@ -8,7 +8,7 @@ LDIR=lib
 SRCDIR=src
 
 CC=g++
-CFLAGS=-I$(IDIR) -std=c++14 -I /usr/include -I/usr/local/include -L /usr/lib -L/usr/local/lib -lwiringPi -pthread -lssl -lcrypto -lboost_system -l sqlite3
+CFLAGS=-I$(IDIR) -std=c++14 -I /usr/include -I /usr/local/include -I /lib/sqlite -L /usr/lib -L/usr/local/lib -lwiringPi -pthread -lssl -lcrypto -lboost_system -lsqlite3
 
 LIBS=-lm
 

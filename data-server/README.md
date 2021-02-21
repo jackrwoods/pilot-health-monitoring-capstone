@@ -9,3 +9,4 @@ You can use `make socketServer` to build the websocket server and `make simpleDa
 	- WiringPi should come pre-installed on Raspbian systems.
 	- Latest libssl
 	- Boost - `sudo apt-get install libboost1.62-*`
+	- `sqlite3` and `libsqlite3-dev`
