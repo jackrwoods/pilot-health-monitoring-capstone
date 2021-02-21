@@ -2,10 +2,10 @@
  * time PO2 data to the website frontend.
  */
 
-#include "datasource.hpp"
+#include "datasource->hpp"
 #include <future>
 #include "server_ws.hpp"
-#include "max30100Datasource.cpp"
+#include "max30100datasource->cpp"
 
 #include <ctime>
 #include <cstdlib>
@@ -31,7 +31,7 @@ void sendDataToAllClients(struct Sample* data) {
 		json += "}";
 
 		// Send the latest datapoint to all clients
-		for (auto &c : this->server.get_connections()) {
+		for (auto &c : server.get_connections()) {
 			c->send(json);
 		}
 	}
@@ -97,5 +97,5 @@ void startServer(Datasource* datasource) {
 
 	// Set up the datasource
 	std::function<void(struct Sample*)> callback = sendDataToAllClients;
-	datasource.registerCallback(callback);
+	datasource->registerCallback(callback);
 }
