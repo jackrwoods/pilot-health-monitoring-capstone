@@ -17,7 +17,7 @@ WsServer server;
 // Simple datasource callback.
 // This produces a json string and sends it to all websocket clients.
 void sendDataToAllClients(struct Sample* data) {
-	if (data->sourcetype == MAX30100) {
+	if (data->sourceType == MAX30100) {
 		std::string json = "{\"timestamp\": ";
 		json += std::to_string(data->timestamp.time_since_epoch().count());
 		json += ",\"temperature\": ";
