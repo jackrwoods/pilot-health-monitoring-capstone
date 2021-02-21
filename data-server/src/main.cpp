@@ -16,7 +16,7 @@ int main() {
 	startServer(&datasource);
 
 	std::cout << "Registering data store callback...\n";
-	Data_Store<Sample>* ds = new Data_Store(&datasource);
+	Data_Store<Sample>* ds = new Data_Store<Sample>(&datasource);
 
 	std::cout << "Reading from datasource. \n";
 	datasource.initializeConnection();
