@@ -13,9 +13,9 @@ int main() {
 	Max30100 datasource;
 
 	std::cout << "Registering WebSocket callback...\n";
-	WebSocketServer* ws = new WebSocketServer(&datasource)
+	WebSocketServer* ws = new WebSocketServer(&datasource);
 
-	std::cout << "Registering data store callback...\n"
+	std::cout << "Registering data store callback...\n";
 	Data_Store* ds = new Data_Store(&datasource);
 
 	std::cout << "Reading from datasource. \n";
