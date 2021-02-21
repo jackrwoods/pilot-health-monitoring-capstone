@@ -93,9 +93,9 @@ void startServer(Datasource* datasource) {
 	std::cout << "Server listening on " << server_port.get_future().get()
 		<< "\n";
 
-
-
 	// Set up the datasource
 	std::function<void(struct Sample*)> callback = sendDataToAllClients;
 	datasource->registerCallback(callback);
+
+	server_thread.join();
 }

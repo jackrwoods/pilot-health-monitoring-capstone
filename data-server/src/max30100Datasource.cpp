@@ -1,9 +1,10 @@
+#ifndef MAX30100DATASOURCE
+#define MAX30100DATASOURCE
+
 /* This file implements the "datasource" interface/abstract class. This
  * collects and processes raw sample data from the MAX 30100 sensor over an
  * I2C connection.
  */
-
-#pragma once
 
 // Import libraries
 #include <chrono>
@@ -150,3 +151,5 @@ class Max30100: public Datasource {
 		};
 
 };
+
+#endif

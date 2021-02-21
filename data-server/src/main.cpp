@@ -12,16 +12,14 @@ int main() {
 	std::cout << "Starting up...\n";
 	Max30100 datasource;
 
-	std::cout << "Registering WebSocket callback...\n";
-	startServer(&datasource);
+	std::cout << "Reading from datasource. \n";
+	datasource.initializeConnection();
 
 	std::cout << "Registering data store callback...\n";
 	Data_Store<Sample>* ds = new Data_Store<Sample>(&datasource);
 
-	std::cout << "Reading from datasource. \n";
-	datasource.initializeConnection();
-
-	while(1); // Run forever!
+	std::cout << "Registering WebSocket callback...\n";
+	startServer(&datasource);
 
 	return 0;
 }
