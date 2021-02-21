@@ -49,8 +49,6 @@ private:
 
     SQL_Connection sql;
 
-    void sql_loop();
-
     void apply_new_data(const std::thread::id id);
 
 public:
