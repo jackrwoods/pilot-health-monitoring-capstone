@@ -6,6 +6,7 @@
 #include "datasource.hpp"
 #include "max30100Datasource.cpp"
 #include "socketServer.cpp"
+#include "ds_data_store.hpp"
 
 int main() {
 	std::cout << "Starting up...\n";
@@ -15,11 +16,12 @@ int main() {
 	WebSocketServer* ws = new WebSocketServer(&datasource)
 
 	std::cout << "Registering data store callback...\n"
+	Data_Store* ds = new Data_Store(&datasource);
 
 	std::cout << "Reading from datasource. \n";
 	datasource.initializeConnection();
 
-	while(1);
+	while(1); // Run forever!
 
 	return 0;
 }

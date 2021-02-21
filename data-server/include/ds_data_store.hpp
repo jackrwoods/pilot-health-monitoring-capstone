@@ -4,7 +4,7 @@
 #include <vector>
 #include <map>
 
-#include "ds_types.hpp"
+#include "datasource.hpp"
 #include "ds_looping_buffer.hpp"
 #include "sql_con.hpp"
 
@@ -54,7 +54,7 @@ private:
     void apply_new_data(const std::thread::id id);
 
 public:
-    Data_Store();
+    Data_Store(Datasource* ds);
     ~Data_Store();
 
     void set_bpm_variance(uint32_t i);
@@ -70,7 +70,7 @@ public:
     uint32_t get_ece_po2() const;
 
     int new_data(Sample *src, size_t len);
-    int new_data(Sample s);
+    int new_data(Sample *s);
 
     void register_reader_thread();
 
@@ -85,8 +85,10 @@ public:
 };
 
 template <class LENGTH>
-Data_Store<LENGTH>::Data_Store()
-{
+Data_Store<LENGTH>::Data_Store(Datasource* ds) {
+    	// Listen to the datasource for new data asynchronously
+		std::function<void(struct Sample*)> callback = this->new_data;
+		ds->registerCallback(callback);
 }
 
 template <class LENGTH>
@@ -207,9 +209,9 @@ int Data_Store<LENGTH>::new_data(Sample *src, size_t len)
  * @returns Number of Samples successfully added to buffer
  */
 template <class LENGTH>
-int Data_Store<LENGTH>::new_data(Sample s)
+int Data_Store<LENGTH>::new_data(Sample *s)
 {
-    return samples.block_write(&s, 1);
+    return samples.block_write(s, 1);
 }
 
 /**

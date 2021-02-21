@@ -6,33 +6,43 @@
  * source later.
  */
 
+#include <chrono>
 #include <forward_list>
 #include <functional>
 #include <queue>
 
-// The type of device that is the source for this data.
-enum Device {
-	MAX30100,
-	OTHER // TODO: JW - This is a placeholder for now.
+// An enumeration of all data sources. Currently, only the MAX30100 is implemented.
+enum Source {
+	MAX30100
+	// Possibly add the ECE group's block as a "device" here?
 };
 
 // An enumeration containing various units of measure
 enum UnitOfMeasure {
 	CELSIUS,
-	MS // Milliseconds (ms)
+	MS, // Milliseconds (ms)
+	NONE // No units (No units are specified in the MAX30100 spec sheet)
 };
 
-struct Sample {
+struct Value {
 	UnitOfMeasure unit;
 	double value;
 };
 
-// Defines a generic datatype for PO2 data
-struct RawOutput {
-	long timestamp; // Linux epoch timestamp in milliseconds (ms)
-	Device deviceType; // One of the devices listed in the enumeration
-	Sample* values; // An array of raw values read from a device
-	int length; // Length of the values array
+enum PilotState {
+	UNSTRESSED,
+	STRESSED
+};
+
+struct Sample {
+	std::chrono::_V2::system_clock::time_point timestamp; // Timestamp corresponding to when this was created
+	Source sourceType; // Describes what created this sample. ie: data interpreter, sensor, etc
+	Value irLED; // Infrared LED observation
+	Value redLED; // Red LED observation
+	Value temperature; // Temperature observation
+	Value bpm; // Heart rate
+	Value spo2; // Blood oxygen content
+	Value pilotState; // The enum for Pilot State can be cast to a double
 };
 
 class Datasource {
