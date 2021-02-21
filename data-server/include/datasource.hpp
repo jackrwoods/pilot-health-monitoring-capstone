@@ -58,11 +58,11 @@ class Datasource {
 		// For each datum collected from the sensor, a pointer
 		// to the sample will be passed to the callback function.
 		void registerCallback(
-			std::function<void(struct RawOutput*)> callbackFunction) {
+			std::function<void(struct Sample*)> callbackFunction) {
 			this->callbacks.push_front(callbackFunction);
 		}
 	protected:
-		std::forward_list<std::function<void(struct RawOutput*)>> callbacks;
-		std::queue<struct RawOutput*> unprocessedData;
+		std::forward_list<std::function<void(struct Sample*)>> callbacks;
+		std::queue<struct Sample*> unprocessedData;
 };
 #endif

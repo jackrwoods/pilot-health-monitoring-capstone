@@ -43,15 +43,13 @@ class Max30100: public Datasource {
 				t =	std::chrono::high_resolution_clock::now();
 
 				// Create new sample struct
-				struct RawOutput* data = new struct RawOutput();
+				struct Sample* data = new struct Sample();
 				data->timestamp = std::chrono::time_point_cast<std::chrono::milliseconds>(t)
 					.time_since_epoch().count();
-				data->values = new struct Sample[3];
-				data->length = 3;
-				data->deviceType = MAX30100;
+				data->sourceType = MAX30100;
 				// Read temp data
-				data->values[0].unit = CELSIUS;
-				data->values[0].value = (double)
+				data->temperature.unit = CELSIUS;
+				data->temperature.value = (double)
 					(wiringPiI2CReadReg8(this->fd, this->TEMP_REG) +
 					((double) wiringPiI2CReadReg8(this->fd,
 											this->TEMP_FRAC_REG) / 16));
@@ -59,11 +57,13 @@ class Max30100: public Datasource {
 				// Read IR and RED Data
 				int ir = wiringPiI2CReadReg8(this->fd, this->FIFO_BUF_PTR) << 8;
 				ir += wiringPiI2CReadReg8(this->fd,	this->FIFO_BUF_PTR);
-				data->values[1].value = (double) ir;
+				data->ir_LED.value = (double) ir;
+				data->ir_LED.uom = NONE;
 
 				int r = wiringPiI2CReadReg8(this->fd, this->FIFO_BUF_PTR) << 8;
 				r += wiringPiI2CReadReg8(this->fd, this->FIFO_BUF_PTR);
-				data->values[2].value = (double) r;
+				data->redLED.value = (double) r;
+				data->redLED.unit = NONE;
 
 				// Add to the queue
 				this->unprocessedData.push(data);
@@ -81,13 +81,13 @@ class Max30100: public Datasource {
 
 				if (this->unprocessedData.size() > 0) {
 
-					struct RawOutput* data = this->unprocessedData.front();
+					struct Sample* data = this->unprocessedData.front();
 					this->unprocessedData.pop();
 
 					// Pass a pointer to the latest data to all of the
 					// callback functions.
 					// When they are all done executing, delete the data.
-					std::forward_list<std::function<void(struct RawOutput*)>>::iterator callback;
+					std::forward_list<std::function<void(struct Sample*)>>::iterator callback;
 					for (callback = this->callbacks.begin(); callback != this->callbacks.end(); callback++) {
 						(*callback)(data);
 					}
