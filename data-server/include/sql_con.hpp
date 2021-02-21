@@ -24,7 +24,6 @@ public:
 
 	int insert_samples(const std::vector<Sample> &v);
 	int insert_sample(const Sample s);
-	int insert_state(const Pilot_State s);
 };
 
 SQL_Connection::SQL_Connection() {
