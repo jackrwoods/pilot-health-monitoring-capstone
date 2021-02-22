@@ -24,7 +24,7 @@ int main(int argc, char *argv[])
     std::cout << "Received bluetooth packets (written to file received_po2_data.csv" << std::endl;
     for (auto i = packets.begin(); i != packets.end(); i++)
     {
-        i->print();
+        // i->print();
         for (int j = 0; j < i->size() / 4; j++)
         {
             file << reinterpret_cast<const uint32_t *>(i->get())[j];

@@ -68,6 +68,8 @@ int main(int argc, char *argv[])
     // write po2 data here
     uint32_t buffer[PACKET_SIZE]{0};
 
+    std::cout << "Transmitting " << (SAMPLE_RATE * SECONDS) << " generated PO2 samples to " << argv[1] << "..." <<  std::endl;
+
     for (int round = 0; round < (SAMPLE_RATE * SECONDS) / PACKET_SIZE; round++)
     {
         for(int i = 0; i < PACKET_SIZE; i++) {
@@ -80,8 +82,7 @@ int main(int argc, char *argv[])
         c.push(buffer, PACKET_SIZE);
     }
 
-    // wait for input before stopping program
-    std::cin.getline(nullptr, 0);
+    std::cout << "Finished sending." << std::endl;
 
     // end bluetooth connection and thread
     c.quit();
