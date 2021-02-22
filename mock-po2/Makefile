@@ -14,9 +14,9 @@ server:
 	# server test compiled to ./test_server.out
 
 sensor:
-	g++ mock_po2_sensor.cpp -lbluetooth -pthread -g -o mock_po2_sensor.out
+	g++ mock_po2_sensor.cpp -lbluetooth -pthread -lwiringPi -g -o mock_po2_sensor.out
 	# sensor send test compiled to ./mock_po2_sensor.out
 
-sensor_client:
-	g++ mock_po2_sensor_client.cpp -lbluetooth -pthread -g -o mock_po2_sensor_client.out
-	# sensor receive test compiled to mock_po2_sensor_client.out
+sensor_server:
+	g++ mock_po2_sensor_server.cpp -lbluetooth -pthread -g -o mock_po2_sensor_server.out
+	# sensor receive test compiled to mock_po2_sensor_server.out
