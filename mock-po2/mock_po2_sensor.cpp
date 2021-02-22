@@ -13,23 +13,24 @@
 #define PACKET_SIZE 32
 
 // how many seconds should data be sent for
-#define SECONDS 10
+#define SECONDS 30
 
-// amount to change po2 by on button presse
-#define PO2_CHANGE 10
+// amount to change po2 by on button press. 33 is about .25% blood oxygen.
+#define PO2_CHANGE 33
+#define PO2_PERCENT .25
 
 // global - makes other stuff easier
 Mock_PO2_Sensor mock_sensor;
 
 void increase_po2()
 {
-    std::cout << "Increasing PO2 moving average by " << PO2_CHANGE << std::endl;
+    std::cout << "Increasing PO2 moving average by " << PO2_CHANGE << " (~" << PO2_PERCENT << "%)" << std::endl;
     mock_sensor.po2_adjust(PO2_CHANGE);
 }
 
 void decrease_po2()
 {
-    std::cout << "Decreasing PO2 moving average by -" << PO2_CHANGE << std::endl;
+    std::cout << "Decreasing PO2 moving average by -" << PO2_CHANGE << " (~" << PO2_PERCENT << "%)" << std::endl;
     mock_sensor.po2_adjust(-PO2_CHANGE);
 }
 
@@ -68,7 +69,7 @@ int main(int argc, char *argv[])
     // write po2 data here
     uint32_t buffer[PACKET_SIZE]{0};
 
-    std::cout << "Transmitting " << (SAMPLE_RATE * SECONDS) << " generated PO2 samples to " << argv[1] << "..." <<  std::endl;
+    std::cout << "Transmitting " << (SAMPLE_RATE * SECONDS) << " PO2 samples generated at " << SAMPLE_RATE << " hertz to " << argv[1] << "..." <<  std::endl;
 
     for (int round = 0; round < (SAMPLE_RATE * SECONDS) / PACKET_SIZE; round++)
     {
@@ -80,6 +81,7 @@ int main(int argc, char *argv[])
             usleep(1000000 / SAMPLE_RATE);
         }
         c.push(buffer, PACKET_SIZE);
+        std::cout << "sent packet" << std::endl;
     }
 
     std::cout << "Finished sending." << std::endl;

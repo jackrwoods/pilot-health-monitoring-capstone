@@ -21,7 +21,7 @@ int main(int argc, char *argv[])
 
     std::vector<PHMS_Bluetooth::Packet> packets = s.get_all();
 
-    std::cout << "Received bluetooth packets (written to file received_po2_data.csv" << std::endl;
+    std::cout << "Received bluetooth packets (written to file received_po2_data.csv)" << std::endl;
     for (auto i = packets.begin(); i != packets.end(); i++)
     {
         // i->print();
