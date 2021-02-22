@@ -1,7 +1,7 @@
 #include <iostream>
 #include <thread>
 
-#include "./bluetooth/bt_server.hpp"
+#include "./bt_server.hpp"
 
 int main()
 {

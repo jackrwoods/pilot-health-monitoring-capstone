@@ -1,7 +1,7 @@
 #include <iostream>
 #include <thread>
 
-#include "./bluetooth/bt_client.hpp"
+#include "./bt_client.hpp"
 
 int main(int argc, char *argv[])
 {
