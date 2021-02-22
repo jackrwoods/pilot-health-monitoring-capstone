@@ -9,7 +9,7 @@ int main(int argc, char *argv[])
     std::cout << "Mock PO2 Sensor Recieve test ('hcitool dev' in terminal returns the bluetooth address of this device)" << std::endl;
 
     // create received_po2_data.csv - all recevied data will be written to this file
-    std::ofstream file("recieved_po2_data.csv", std::ios::trunc | std::ios::out);
+    std::ofstream file("received_po2_data.csv", std::ios::trunc | std::ios::out);
 
     PHMS_Bluetooth::Server s;
     s.open_con();
@@ -21,7 +21,7 @@ int main(int argc, char *argv[])
 
     std::vector<PHMS_Bluetooth::Packet> packets = s.get_all();
 
-    std::cout << "Received bluetooth packets (written to file received_po2_dta.csv" << std::endl;
+    std::cout << "Received bluetooth packets (written to file received_po2_data.csv" << std::endl;
     for (auto i = packets.begin(); i != packets.end(); i++)
     {
         i->print();

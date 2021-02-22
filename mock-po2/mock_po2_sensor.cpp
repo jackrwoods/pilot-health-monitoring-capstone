@@ -66,18 +66,18 @@ int main(int argc, char *argv[])
     std::thread button_thread(&Button_Input::run, &buttons);
 
     // write po2 data here
-    uint32_t buffer[32]{0};
+    uint32_t buffer[PACKET_SIZE]{0};
 
     for (int round = 0; round < (SAMPLE_RATE * SECONDS) / PACKET_SIZE; round++)
     {
         for(int i = 0; i < PACKET_SIZE; i++) {
-            // buffer[i] = mock_sensor.get();
-            std::cout << mock_sensor.string_get() << std::endl;
+            buffer[i] = mock_sensor.get();
+            // std::cout << mock_sensor.string_get() << std::endl;
 
             // 1000000 microseconds per second divided by hz gives the total time in between samples. Not perfect but works.
             usleep(1000000 / SAMPLE_RATE);
-            
         }
+        c.push(buffer, PACKET_SIZE);
     }
 
     // wait for input before stopping program
