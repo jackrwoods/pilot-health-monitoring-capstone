@@ -8,7 +8,7 @@
 #include "ds_looping_buffer.hpp"
 #include "sql_con.hpp"
 
-#define BUFFER_LENGTH 64
+#define BUFFER_LENGTH 1024
 
 /**
  * Reader
@@ -86,6 +86,7 @@ Data_Store<LENGTH>::Data_Store(Datasource* ds) {
     	// Listen to the datasource for new data asynchronously
 		std::function<void(struct Sample*)> callback(std::bind(&Data_Store::new_data, this, std::placeholders::_1));
 		ds->registerCallback(callback);
+		std::cout << "Registered data store callback.\n";
 }
 
 template <class LENGTH>
@@ -273,7 +274,7 @@ void Data_Store<LENGTH>::apply_new_data(const std::thread::id id)
     Reader &reader = read_buffers.at(id);
 
     // copy directly into vector
-    // this is probably a bad idea but I 
+    // this is probably a bad idea but I
     // could not think of a better way to do this
 
     reader.sample_buffer.clear();
