@@ -40,6 +40,9 @@ class Data_Store
 private:
     std::unordered_map<std::thread::id, Reader<SAMPLE_TYPE, LENGTH>> read_buffers;
 
+    std::thread::id writer{0};
+    bool writer_registered{false};
+
     Looping_Buffer<SAMPLE_TYPE, LENGTH> samples;
 
     uint32_t bpm_variance{0};
@@ -71,8 +74,10 @@ public:
     uint32_t get_ece_bpm() const;
     uint32_t get_ece_po2() const;
 
-    int new_data(Sample *src, size_t len);
-    int new_data(Sample s);
+    int new_data(SAMPLE_TYPE *src, size_t len);
+    int new_data(SAMPLE_TYPE s);
+
+    void register_writer_thread();
 
     void register_reader_thread();
 
@@ -193,25 +198,32 @@ uint32_t Data_Store<SAMPLE_TYPE, LENGTH>::get_ece_po2() const
 }
 
 /**
- * new_data: Add one or more Samples to the data buffer
- * @param src: Pointer to beginning of Sample buffer to be added
- * @param len: Number of Samples to be added
- * @returns Number of Samples successfully added to buffer
+ * new_data: Add one or more Samples to the data buffer. Calling thread must be registered as writer thread.
+ * @param src: Pointer to beginning of SAMPLE_TYPE buffer to be added
+ * @param len: Number of SAMPLE_TYPE to be added
+ * @returns Number of SAMPLE_TYPE successfully added to the buffer
  */
 template <typename SAMPLE_TYPE, int LENGTH>
-int Data_Store<SAMPLE_TYPE, LENGTH>::new_data(Sample *src, size_t len)
+int Data_Store<SAMPLE_TYPE, LENGTH>::new_data(SAMPLE_TYPE *src, size_t len)
 {
+    if (writer != std::this_thread::get_id())
+    {
+        std::cout << "writer: " << writer << " this thread: " << std::this_thread::get_id() << std::endl;
+        return 0;
+    }
     return samples.block_write(src, len);
 }
 
 /**
- * new_data: Add one Sample to the data buffer
- * @param s: Sample to add
- * @returns Number of Samples successfully added to buffer
+ * new_data: Add one SAMPLE_TYPE to the data buffer. Calling thread must be registered as writer thread.
+ * @param s: SAMPLE_TYPE to add
+ * @returns Number of SAMPLE_TYPE successfully added to buffer
  */
 template <typename SAMPLE_TYPE, int LENGTH>
-int Data_Store<SAMPLE_TYPE, LENGTH>::new_data(Sample s)
+int Data_Store<SAMPLE_TYPE, LENGTH>::new_data(SAMPLE_TYPE s)
 {
+    if (writer != std::this_thread::get_id())
+        return 0;
     return samples.block_write(&s, 1);
 }
 
@@ -297,4 +309,17 @@ void Data_Store<SAMPLE_TYPE, LENGTH>::apply_new_data(const std::thread::id id)
 
     reader.count += samples.copy_to(&reader.sample_buffer[0], reader.count, samples.samples_recv());
     // add exceptions if missed data?
+}
+
+template <class SAMPLE_TYPE, int LENGTH>
+void Data_Store<SAMPLE_TYPE, LENGTH>::register_writer_thread()
+{
+    if (writer_registered == true)
+    {
+        std::cerr << "Failed to register thread " << std::this_thread::get_id() << " as writer thread." << std::endl;
+        std::cerr << writer << std::endl;
+        return;
+    }
+    writer = std::this_thread::get_id();
+    writer_registered = true;
 }

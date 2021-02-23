@@ -6,6 +6,23 @@
 
 #define BUFFER_LEN 64
 
+void thread_write(Data_Store<Sample, BUFFER_LEN> *ds_p, Sample *s)
+{
+    Data_Store<Sample, BUFFER_LEN> &ds = *ds_p;
+
+    // register thread as writer
+    ds.register_writer_thread();
+
+    // measure time to add data
+    auto start = std::chrono::high_resolution_clock::now();
+    ds.new_data(s, 16);
+    auto end = std::chrono::high_resolution_clock::now();
+
+    auto nanos = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count() / 64;
+    float hz = 1000000000.0 / nanos;
+    std::cout << "Copied 16 items in " << nanos << " nanoseconds (max data transfer: " << hz << " hz)" << std::endl;
+}
+
 void thread_ex(Data_Store<Sample, BUFFER_LEN> *ds_p, Sample *s)
 {
 
@@ -140,7 +157,6 @@ void test_ds()
     ts_hz = 1000000000.0 / ts_nanos;
     std::cout << "Set ece po2 in " << ts_nanos << " nanoseconds (" << ts_hz << " hz)" << std::endl;
 
-
     // assert values were set correctly
     assert(ds.get_bpm_average() == 7);
     assert(ds.get_bpm_variance() == 7);
@@ -159,15 +175,13 @@ void test_ds()
         s[i] = Sample(static_cast<po2_sample>(i), static_cast<optical_sample>(i));
     }
 
-    auto start = std::chrono::high_resolution_clock::now();
-    // read new data into data store
-    ds.new_data(s, 16);
-    auto end = std::chrono::high_resolution_clock::now();
-    auto nanos = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count() / 64;
-    float hz = 1000000000.0 / nanos;
-    std::cout << "Copied 16 items in " << nanos << " nanoseconds (max data transfer: " << hz << " hz)" << std::endl;
+    // read new data into data store - new thread for writer
+    std::thread th_writer(thread_write, &ds, s);
+    th_writer.join();
 
-    // multithreaded tests
+    // multithreaded read tests
+
+    // thread_ex(&ds, s);
 
     std::thread th_0(thread_ex, &ds, s);
     std::thread th_1(thread_ex, &ds, s);
