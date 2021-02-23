@@ -6,7 +6,7 @@ Simulate output of a Max30100 pulse oximeter.
 
 Requires the [BlueZ](http://www.bluez.org/) stack and [WiringPi](http://wiringpi.com/). Compile with `-lbluetooth`, `-lwiringPi`, and `-lpthread`.
 
-Compile with the given Makefile:
+Compile with the given Makefile:  
 `make client`: Create a client test executable `test_client.out`  
 `make server`: Create a server test executable `test_server.out`  
 `make sensor`: Create a mock PO2 sensor executable `mock_po2_sensor.out`  
