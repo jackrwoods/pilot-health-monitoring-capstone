@@ -2,43 +2,45 @@
 
 #include <thread>
 #include <vector>
-#include <map>
+#include <unordered_map>
 
 #include "ds_types.hpp"
 #include "ds_looping_buffer.hpp"
 #include "sql_con.hpp"
-
-#define BUFFER_LENGTH 64
 
 /**
  * Reader
  * Identifies a data reader using std::thread::id
  * Keeps track of reader's last read sample
  */
+template <typename SAMPLE_TYPE, int LENGTH>
 struct Reader
 {
-    std::vector<Sample> sample_buffer;
+    std::vector<SAMPLE_TYPE> sample_buffer;
     uint32_t count{0};
     Reader();
 };
 
-Reader::Reader()
+template <class SAMPLE_TYPE, int LENGTH>
+Reader<SAMPLE_TYPE, LENGTH>::Reader()
 {
-    sample_buffer.reserve(BUFFER_LENGTH);
+    sample_buffer.reserve(LENGTH);
 }
 
 /**
  * Data_Store
  * Hold all recorded biometric data.
  * Coordinate data access to other objects in other threads.
+ * @param SAMPLE_TYPE Type of sample to hold
+ * @param LENGTH Number of samples to hold
  */
-template <typename LENGTH>
+template <typename SAMPLE_TYPE, int LENGTH>
 class Data_Store
 {
 private:
-    std::map<std::thread::id, Reader> read_buffers;
+    std::unordered_map<std::thread::id, Reader<SAMPLE_TYPE, LENGTH>> read_buffers;
 
-    Looping_Buffer<Sample, BUFFER_LENGTH> samples;
+    Looping_Buffer<SAMPLE_TYPE, LENGTH> samples;
 
     uint32_t bpm_variance{0};
     uint32_t bpm_average{0};
@@ -74,31 +76,32 @@ public:
 
     void register_reader_thread();
 
-    std::vector<Sample>::iterator begin();
-    std::vector<Sample>::iterator end();
+    typename std::vector<SAMPLE_TYPE>::iterator begin();
+    typename std::vector<SAMPLE_TYPE>::iterator end();
 
-    const std::vector<Sample> &vec();
+    const std::vector<SAMPLE_TYPE> &vec();
 
-    int copy(Sample *s, size_t len);
+    int copy(SAMPLE_TYPE *s, size_t len);
 
     int available_samples();
 };
 
-template <class LENGTH>
-Data_Store<LENGTH>::Data_Store()
+template <typename SAMPLE_TYPE, int LENGTH>
+Data_Store<SAMPLE_TYPE, LENGTH>::Data_Store()
 {
+    read_buffers.reserve(16);
 }
 
-template <class LENGTH>
-Data_Store<LENGTH>::~Data_Store()
+template <typename SAMPLE_TYPE, int LENGTH>
+Data_Store<SAMPLE_TYPE, LENGTH>::~Data_Store()
 {
 }
 
 /**
  * set_ece_po2: Set CS team calculated BPM variance
  */
-template <class LENGTH>
-void Data_Store<LENGTH>::set_bpm_variance(uint32_t i)
+template <typename SAMPLE_TYPE, int LENGTH>
+void Data_Store<SAMPLE_TYPE, LENGTH>::set_bpm_variance(uint32_t i)
 {
     bpm_variance = i;
 }
@@ -106,8 +109,8 @@ void Data_Store<LENGTH>::set_bpm_variance(uint32_t i)
 /**
  * set_ece_po2: Set CS team calculated running average BPM value
  */
-template <class LENGTH>
-void Data_Store<LENGTH>::set_bpm_average(uint32_t i)
+template <typename SAMPLE_TYPE, int LENGTH>
+void Data_Store<SAMPLE_TYPE, LENGTH>::set_bpm_average(uint32_t i)
 {
     bpm_average = i;
 }
@@ -115,8 +118,8 @@ void Data_Store<LENGTH>::set_bpm_average(uint32_t i)
 /**
  * set_ece_po2: Set CS team calculated running average PO2 value
  */
-template <class LENGTH>
-void Data_Store<LENGTH>::set_po2_average(uint32_t i)
+template <typename SAMPLE_TYPE, int LENGTH>
+void Data_Store<SAMPLE_TYPE, LENGTH>::set_po2_average(uint32_t i)
 {
     po2_average = i;
 }
@@ -124,8 +127,8 @@ void Data_Store<LENGTH>::set_po2_average(uint32_t i)
 /**
  * set_ece_po2: Set ECE team calculated BPM value
  */
-template <class LENGTH>
-void Data_Store<LENGTH>::set_ece_bpm(uint32_t i)
+template <typename SAMPLE_TYPE, int LENGTH>
+void Data_Store<SAMPLE_TYPE, LENGTH>::set_ece_bpm(uint32_t i)
 {
     ece_bpm = i;
 }
@@ -133,8 +136,8 @@ void Data_Store<LENGTH>::set_ece_bpm(uint32_t i)
 /**
  * set_ece_po2: Set ECE team calculated PO2 value
  */
-template <class LENGTH>
-void Data_Store<LENGTH>::set_ece_po2(uint32_t i)
+template <typename SAMPLE_TYPE, int LENGTH>
+void Data_Store<SAMPLE_TYPE, LENGTH>::set_ece_po2(uint32_t i)
 {
     ece_po2 = i;
 }
@@ -143,8 +146,8 @@ void Data_Store<LENGTH>::set_ece_po2(uint32_t i)
  * get_bpm_variance: Get CS team calculated BPM variance
  * @returns CS team calculated BPM variance
  */
-template <class LENGTH>
-uint32_t Data_Store<LENGTH>::get_bpm_variance() const
+template <typename SAMPLE_TYPE, int LENGTH>
+uint32_t Data_Store<SAMPLE_TYPE, LENGTH>::get_bpm_variance() const
 {
     return bpm_variance;
 }
@@ -153,8 +156,8 @@ uint32_t Data_Store<LENGTH>::get_bpm_variance() const
  * get_bpm_average: Get CS team calculated BPM running average value
  * @returns CS team calculated BPM running average value
  */
-template <class LENGTH>
-uint32_t Data_Store<LENGTH>::get_bpm_average() const
+template <typename SAMPLE_TYPE, int LENGTH>
+uint32_t Data_Store<SAMPLE_TYPE, LENGTH>::get_bpm_average() const
 {
     return bpm_average;
 }
@@ -163,8 +166,8 @@ uint32_t Data_Store<LENGTH>::get_bpm_average() const
  * get_po2_average: Get CS team calculated PO2 running average value
  * @returns CS team calculated PO2 running average value
  */
-template <class LENGTH>
-uint32_t Data_Store<LENGTH>::get_po2_average() const
+template <typename SAMPLE_TYPE, int LENGTH>
+uint32_t Data_Store<SAMPLE_TYPE, LENGTH>::get_po2_average() const
 {
     return po2_average;
 }
@@ -173,8 +176,8 @@ uint32_t Data_Store<LENGTH>::get_po2_average() const
  * get_ece_bpm: Get ECE team calculated BPM value
  * @returns ECE team calculated BPM value
  */
-template <class LENGTH>
-uint32_t Data_Store<LENGTH>::get_ece_bpm() const
+template <typename SAMPLE_TYPE, int LENGTH>
+uint32_t Data_Store<SAMPLE_TYPE, LENGTH>::get_ece_bpm() const
 {
     return ece_bpm;
 }
@@ -183,8 +186,8 @@ uint32_t Data_Store<LENGTH>::get_ece_bpm() const
  * get_ece_po2: Get ECE team calculated PO2 value
  * @returns ECE team calculated PO2 value
  */
-template <class LENGTH>
-uint32_t Data_Store<LENGTH>::get_ece_po2() const
+template <typename SAMPLE_TYPE, int LENGTH>
+uint32_t Data_Store<SAMPLE_TYPE, LENGTH>::get_ece_po2() const
 {
     return ece_po2;
 }
@@ -195,8 +198,8 @@ uint32_t Data_Store<LENGTH>::get_ece_po2() const
  * @param len: Number of Samples to be added
  * @returns Number of Samples successfully added to buffer
  */
-template <class LENGTH>
-int Data_Store<LENGTH>::new_data(Sample *src, size_t len)
+template <typename SAMPLE_TYPE, int LENGTH>
+int Data_Store<SAMPLE_TYPE, LENGTH>::new_data(Sample *src, size_t len)
 {
     return samples.block_write(src, len);
 }
@@ -206,8 +209,8 @@ int Data_Store<LENGTH>::new_data(Sample *src, size_t len)
  * @param s: Sample to add
  * @returns Number of Samples successfully added to buffer
  */
-template <class LENGTH>
-int Data_Store<LENGTH>::new_data(Sample s)
+template <typename SAMPLE_TYPE, int LENGTH>
+int Data_Store<SAMPLE_TYPE, LENGTH>::new_data(Sample s)
 {
     return samples.block_write(&s, 1);
 }
@@ -215,19 +218,19 @@ int Data_Store<LENGTH>::new_data(Sample s)
 /**
  * register_reader_thread: Register current thread as a reader thread
  */
-template <class LENGTH>
-void Data_Store<LENGTH>::register_reader_thread()
+template <typename SAMPLE_TYPE, int LENGTH>
+void Data_Store<SAMPLE_TYPE, LENGTH>::register_reader_thread()
 {
     // read_buffers[std::thread::id];
-    read_buffers.insert(std::make_pair(std::this_thread::get_id(), Reader()));
+    read_buffers.insert(std::make_pair(std::this_thread::get_id(), Reader<SAMPLE_TYPE, LENGTH>()));
 }
 
 /**
  * begin: Copy newest available samples into vector, return iterator.
  * @returns Vector iterator at beginning of new samples vector
  */
-template <class LENGTH>
-std::vector<Sample>::iterator Data_Store<LENGTH>::begin()
+template <typename SAMPLE_TYPE, int LENGTH>
+typename std::vector<SAMPLE_TYPE>::iterator Data_Store<SAMPLE_TYPE, LENGTH>::begin()
 {
     apply_new_data(std::this_thread::get_id());
     return read_buffers.at(std::this_thread::get_id()).sample_buffer.begin();
@@ -237,8 +240,8 @@ std::vector<Sample>::iterator Data_Store<LENGTH>::begin()
  * end: Iterator at end of samples vector
  * @returns vector iterator at end of samples vector
  */
-template <class LENGTH>
-std::vector<Sample>::iterator Data_Store<LENGTH>::end()
+template <typename SAMPLE_TYPE, int LENGTH>
+typename std::vector<SAMPLE_TYPE>::iterator Data_Store<SAMPLE_TYPE, LENGTH>::end()
 {
     return read_buffers.at(std::this_thread::get_id()).sample_buffer.end();
 }
@@ -247,8 +250,8 @@ std::vector<Sample>::iterator Data_Store<LENGTH>::end()
  * vec: Get a reference to the vector of new available samples
  * @returns Vector reference
  */
-template <class LENGTH>
-const std::vector<Sample> &Data_Store<LENGTH>::vec()
+template <typename SAMPLE_TYPE, int LENGTH>
+const std::vector<SAMPLE_TYPE> &Data_Store<SAMPLE_TYPE, LENGTH>::vec()
 {
     apply_new_data(std::this_thread::get_id());
     return read_buffers.at(std::this_thread::get_id()).sample_buffer;
@@ -260,8 +263,8 @@ const std::vector<Sample> &Data_Store<LENGTH>::vec()
  * @param len Number of samples to copy
  * @returns Number of samples successfully copied
  */
-template <class LENGTH>
-int Data_Store<LENGTH>::copy(Sample *s, size_t len)
+template <typename SAMPLE_TYPE, int LENGTH>
+int Data_Store<SAMPLE_TYPE, LENGTH>::copy(SAMPLE_TYPE *s, size_t len)
 {
     return samples.copy_to(s, samples.samples_recv() - len, samples.samples_recv());
 }
@@ -270,8 +273,8 @@ int Data_Store<LENGTH>::copy(Sample *s, size_t len)
  * available_samples: How many unread samples are available to each thread
  * @returns New samples available to thread
  */
-template <class LENGTH>
-int Data_Store<LENGTH>::available_samples()
+template <typename SAMPLE_TYPE, int LENGTH>
+int Data_Store<SAMPLE_TYPE, LENGTH>::available_samples()
 {
     return samples.samples_recv() - read_buffers.at(std::this_thread::get_id()).count;
 }
@@ -280,13 +283,13 @@ int Data_Store<LENGTH>::available_samples()
  * apply_new_data: Internal function for copying data into thread buffers.
  * @param id Thread id
  */
-template <class LENGTH>
-void Data_Store<LENGTH>::apply_new_data(const std::thread::id id)
+template <typename SAMPLE_TYPE, int LENGTH>
+void Data_Store<SAMPLE_TYPE, LENGTH>::apply_new_data(const std::thread::id id)
 {
-    Reader &reader = read_buffers.at(id);
+    Reader<SAMPLE_TYPE, LENGTH> &reader = read_buffers.at(id);
 
     // copy directly into vector
-    // this is probably a bad idea but I 
+    // this is probably a bad idea but I
     // could not think of a better way to do this
 
     reader.sample_buffer.clear();

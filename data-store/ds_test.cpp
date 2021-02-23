@@ -4,10 +4,12 @@
 #include "ds_looping_buffer.hpp"
 #include "ds_data_store.hpp"
 
-void thread_ex(Data_Store<Sample> *ds_p, Sample *s)
+#define BUFFER_LEN 64
+
+void thread_ex(Data_Store<Sample, BUFFER_LEN> *ds_p, Sample *s)
 {
 
-    Data_Store<Sample> &ds = *ds_p;
+    Data_Store<Sample, BUFFER_LEN> &ds = *ds_p;
 
     // register as reader thread
     ds.register_reader_thread();
@@ -98,20 +100,55 @@ void test_ds()
 {
     std::cout << "Data_Store tests: ";
 
-    Data_Store<Sample> ds;
+    Data_Store<Sample, BUFFER_LEN> ds;
 
-    // test gets and sets - should be pretty straightforward
+    std::cout << "\n=== Measure time to set values ===\n";
+
+    // measure time to set values
+    auto ts_start = std::chrono::high_resolution_clock::now();
     ds.set_bpm_average(7);
-    ds.set_bpm_variance(7);
-    ds.set_po2_average(7);
-    ds.set_ece_bpm(7);
-    ds.set_ece_po2(7);
+    auto ts_end = std::chrono::high_resolution_clock::now();
+    auto ts_nanos = std::chrono::duration_cast<std::chrono::nanoseconds>(ts_end - ts_start).count() / 64;
+    float ts_hz = 1000000000.0 / ts_nanos;
+    std::cout << "Set average bpm in " << ts_nanos << " nanoseconds (" << ts_hz << " hz)" << std::endl;
 
+    ts_start = std::chrono::high_resolution_clock::now();
+    ds.set_bpm_variance(7);
+    ts_end = std::chrono::high_resolution_clock::now();
+    ts_nanos = std::chrono::duration_cast<std::chrono::nanoseconds>(ts_end - ts_start).count() / 64;
+    ts_hz = 1000000000.0 / ts_nanos;
+    std::cout << "Set bpm variance in " << ts_nanos << " nanoseconds (" << ts_hz << " hz)" << std::endl;
+
+    ts_start = std::chrono::high_resolution_clock::now();
+    ds.set_po2_average(7);
+    ts_end = std::chrono::high_resolution_clock::now();
+    ts_nanos = std::chrono::duration_cast<std::chrono::nanoseconds>(ts_end - ts_start).count() / 64;
+    ts_hz = 1000000000.0 / ts_nanos;
+    std::cout << "Set po2 average in " << ts_nanos << " nanoseconds (" << ts_hz << " hz)" << std::endl;
+
+    ts_start = std::chrono::high_resolution_clock::now();
+    ds.set_ece_bpm(7);
+    ts_end = std::chrono::high_resolution_clock::now();
+    ts_nanos = std::chrono::duration_cast<std::chrono::nanoseconds>(ts_end - ts_start).count() / 64;
+    ts_hz = 1000000000.0 / ts_nanos;
+    std::cout << "Set ece bpm in " << ts_nanos << " nanoseconds (" << ts_hz << " hz)" << std::endl;
+
+    ts_start = std::chrono::high_resolution_clock::now();
+    ds.set_ece_po2(7);
+    ts_end = std::chrono::high_resolution_clock::now();
+    ts_nanos = std::chrono::duration_cast<std::chrono::nanoseconds>(ts_end - ts_start).count() / 64;
+    ts_hz = 1000000000.0 / ts_nanos;
+    std::cout << "Set ece po2 in " << ts_nanos << " nanoseconds (" << ts_hz << " hz)" << std::endl;
+
+
+    // assert values were set correctly
     assert(ds.get_bpm_average() == 7);
     assert(ds.get_bpm_variance() == 7);
     assert(ds.get_po2_average() == 7);
     assert(ds.get_ece_bpm() == 7);
     assert(ds.get_ece_po2() == 7);
+
+    std::cout << "\n=== Measure data transfer ===\n";
 
     // array of samples for comparison
     Sample s[16];
@@ -143,7 +180,7 @@ void test_ds()
     th_2.join();
     th_3.join();
     th_4.join();
-    std::cout << "Passed!" << std::endl;
+    std::cout << "\nPassed!" << std::endl;
 }
 
 int main()
