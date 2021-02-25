@@ -36,7 +36,7 @@ SQL_Connection::SQL_Connection() {
 	if (sqlite3_open_v2(
 		"./data/samples_database.db",
 		&this->db,
-		SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE,
+		SQLITE_OPEN_MEMORY | SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE,
 		NULL // Empty string uses the default VFS module
 	) != SQLITE_OK) std::cout << "Error creating database.\n";
 
