@@ -39,6 +39,7 @@ class Data_Store
 {
 private:
     std::unordered_map<std::thread::id, Reader<SAMPLE_TYPE, LENGTH>> read_buffers;
+    std::mutex map_guard;
 
     std::thread::id writer{0};
     bool writer_registered{false};
@@ -89,6 +90,7 @@ public:
     int copy(SAMPLE_TYPE *s, size_t len);
 
     int available_samples();
+    int size();
 };
 
 template <typename SAMPLE_TYPE, int LENGTH>
@@ -206,11 +208,9 @@ uint32_t Data_Store<SAMPLE_TYPE, LENGTH>::get_ece_po2() const
 template <typename SAMPLE_TYPE, int LENGTH>
 int Data_Store<SAMPLE_TYPE, LENGTH>::new_data(SAMPLE_TYPE *src, size_t len)
 {
-    if (writer != std::this_thread::get_id())
-    {
-        std::cout << "writer: " << writer << " this thread: " << std::this_thread::get_id() << std::endl;
+    if (writer != std::this_thread::get_id() || writer_registered == false)
         return 0;
-    }
+
     return samples.block_write(src, len);
 }
 
@@ -222,7 +222,7 @@ int Data_Store<SAMPLE_TYPE, LENGTH>::new_data(SAMPLE_TYPE *src, size_t len)
 template <typename SAMPLE_TYPE, int LENGTH>
 int Data_Store<SAMPLE_TYPE, LENGTH>::new_data(SAMPLE_TYPE s)
 {
-    if (writer != std::this_thread::get_id())
+    if (writer != std::this_thread::get_id() || writer_registered == false)
         return 0;
     return samples.block_write(&s, 1);
 }
@@ -234,6 +234,7 @@ template <typename SAMPLE_TYPE, int LENGTH>
 void Data_Store<SAMPLE_TYPE, LENGTH>::register_reader_thread()
 {
     // read_buffers[std::thread::id];
+    std::lock_guard<std::mutex> guard(map_guard);
     read_buffers.insert(std::make_pair(std::this_thread::get_id(), Reader<SAMPLE_TYPE, LENGTH>()));
 }
 
@@ -322,4 +323,10 @@ void Data_Store<SAMPLE_TYPE, LENGTH>::register_writer_thread()
     }
     writer = std::this_thread::get_id();
     writer_registered = true;
+}
+
+template <class SAMPLE_TYPE, int LENGTH>
+int Data_Store<SAMPLE_TYPE, LENGTH>::size()
+{
+    return LENGTH;
 }
