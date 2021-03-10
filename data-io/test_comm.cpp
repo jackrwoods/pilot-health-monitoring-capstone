@@ -65,7 +65,7 @@ int main(int argc, char *argv[])
             buffer[i+2] = i;
             usleep(995000 / SAMPLE_RATE);
         }
-        c.push(buffer, PACKET_SIZE);
+        c.push(buffer, PACKET_SIZE * 4 + 4);
         auto end = std::chrono::high_resolution_clock::now();
         auto nanos = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count() / PACKET_SIZE;
         float hz = 1000000000.0 / nanos;
@@ -75,7 +75,7 @@ int main(int argc, char *argv[])
     std::cout << "Finished sending." << std::endl;
 
     // BPM MEASUREMENTS ===============================================================================================
-    buffer[0] = 0xFE; // arbitrary. Defines bpm measurement packet
+    buffer[0] = ID_ECE_BPM; // arbitrary. Defines bpm measurement packet
 
     // transmit bpm of 7
     int bpm{7};
@@ -86,7 +86,7 @@ int main(int argc, char *argv[])
     std::cout << "sent packet with bpm measurement (" << bpm << ")\n";
 
     // PO2 MEASUREMENTS ===============================================================================================
-    buffer[0] = 0xFD; // arbitrary. Defines po2 measurement packet
+    buffer[0] = ID_ECE_PO2; // arbitrary. Defines po2 measurement packet
 
     // transmit po2 of 7
     int po2{7};

@@ -55,6 +55,8 @@ Data_IO<SAMPLE_TYPE>::Data_IO(Data_Store<SAMPLE_TYPE, 256> &d) : ds(d)
 
     bt_c = std::thread(&PHMS_Bluetooth::Client::run, std::ref(bt_client));
     bt_s = std::thread(&PHMS_Bluetooth::Server::run, std::ref(bt_server));
+
+    ds.register_writer_thread();
 }
 
 template <class SAMPLE_TYPE>
@@ -84,31 +86,45 @@ void Data_IO<SAMPLE_TYPE>::run()
             auto packets = bt_server.get_all();
             for (auto i = packets.begin(); i != packets.end(); i++)
             {
+                // std::cout << "got packet with id byte: " << i->get()[0] << std::endl;
+                // printf("got packet with id byte: 0x%x\n", i->get()[0]);
                 switch (i->get()[0])
                 {
+                // case ID_SAMPLE:
                 case ID_SAMPLE:
                 {
+                    // printf("got sample packet(0x%x)\n", ID_SAMPLE);
+
                     // construct sample buffer from packet
-                    int samples_len = i->size()/4 - 1;
+                    int samples_len = i->size() / 4;
+
+                    const uint32_t *data = reinterpret_cast<const uint32_t *>(i->get());
+
                     std::vector<IO_TYPES::Sample> smps;
-                    for(int j = 0; j < samples_len; j+=2)
+                    for (int j = 0; j < samples_len; j += 2)
                     {
-                        smps.push_back(IO_TYPES::Sample(i->get()[1 + j], i->get()[1 + j + 1]));
+                        smps.push_back(IO_TYPES::Sample(data[1 + j], data[1 + j + 1]));
                     }
-                    ds.new_data(smps.data(), smps.size());
+                    std::cout << ds.new_data(smps.data(), smps.size()) * 2 << ", ";
+                    // for(auto j = smps.begin(); j != smps.end(); j++)
+                        // std::cout << *j << std::endl;
+
                     break;
                 }
                 case ID_ECE_BPM:
                 {
-                    ds.set_ece_bpm(i->get()[1]);
+                    // printf("got ece bpm packet(0x%x) value: 0x%x\n", ID_ECE_BPM, reinterpret_cast<const uint32_t *>(i->get())[1]);
+                    ds.set_ece_bpm(reinterpret_cast<const uint32_t *>(i->get())[1]);
                     break;
                 }
                 case ID_ECE_PO2:
                 {
-                    ds.set_ece_po2(i->get()[1]);
+                    // printf("got ece po2 packet(0x%x) value: 0x%x\n", ID_ECE_PO2, reinterpret_cast<const uint32_t *>(i->get())[1]);
+                    ds.set_ece_po2(reinterpret_cast<const uint32_t *>(i->get())[1]);
                     break;
                 }
                 default:
+                    printf("got unrecognized packet(0x%x)\n", i->get()[0]);
                     break;
                 }
             }

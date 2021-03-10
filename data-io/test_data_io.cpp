@@ -8,13 +8,22 @@
 
 Data_Store<IO_TYPES::Sample, 256> ds;
 
+bool thread_run{true};
+
 void thread_ex()
 {
+    // count received samples
+    int total_samples{0};
+
     ds.register_reader_thread();
-    for (auto i = ds.begin(); i != ds.end(); i++)
+    while (thread_run)
     {
-        std::cout << *i << std::endl;
+        if (ds.available_samples() > 0)
+        {
+            total_samples += ds.vec().size();
+        }
     }
+    std::cout << total_samples * 2 << " total received samples.\n";
 }
 
 int main()
@@ -29,6 +38,7 @@ int main()
     std::cout << "Initial ECE BPM value: " << init_bpm << std::endl;
     std::cout << "Initial ECE PO2 value: " << init_po2 << std::endl;
 
+    std::thread th0(thread_ex);
     std::thread th_dio(&Data_IO<IO_TYPES::Sample>::run, std::ref(dio));
     std::cout << "Data I/O block is receiving..." << std::endl;
 
@@ -36,13 +46,11 @@ int main()
     dio.quit();
     th_dio.join();
 
+    thread_run = false;
+    th0.join();
     // test that bpm and po2 values were received
     std::cout << "Current ECE BPM value: " << ds.get_ece_bpm() << std::endl;
     std::cout << "Current ECE PO2 value: " << ds.get_ece_po2() << std::endl;
-
-    std::thread th0(thread_ex);
-
-    th0.join();
 
     dio.quit();
     return 0;
