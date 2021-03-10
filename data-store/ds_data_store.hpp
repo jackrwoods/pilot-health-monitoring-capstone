@@ -208,8 +208,8 @@ uint32_t Data_Store<SAMPLE_TYPE, LENGTH>::get_ece_po2() const
 template <typename SAMPLE_TYPE, int LENGTH>
 int Data_Store<SAMPLE_TYPE, LENGTH>::new_data(SAMPLE_TYPE *src, size_t len)
 {
-    if (writer != std::this_thread::get_id() || writer_registered == false)
-        return 0;
+    // if (writer != std::this_thread::get_id() || writer_registered == false)
+    //     return 0;
 
     return samples.block_write(src, len);
 }
