@@ -6,11 +6,13 @@
 #include "./bluetooth/bt_server.hpp"
 #include "./io_types.hpp"
 
-#define ID_STATE 0x1
-#define ID_SAMPLE 0x2
+#include "../data-store/ds_data_store.hpp" // temporary until i find a better way to do this.
 
-#define ID_ECE_BPM 0x3
-#define ID_ECE_PO2 0x4
+// identify what kind of data is in a packet
+#define ID_SAMPLE 0xFF
+
+#define ID_ECE_BPM 0xFE
+#define ID_ECE_PO2 0xFD
 
 /**
  * Data_IO: Receive Bluetooth data and write to datastore
@@ -29,23 +31,25 @@ private:
     std::thread bt_c;
     std::thread bt_s;
 
-    std::function<int(SAMPLE_TYPE *, size_t)> insert_callback;
+    Data_Store<SAMPLE_TYPE, 256> &ds;
+
+    // std::function<int(const SAMPLE_TYPE *, size_t)> insert_callback;
 
 public:
-    Data_IO();
+    Data_IO(Data_Store<SAMPLE_TYPE, 256> &);
     ~Data_IO();
 
     void run();
     void quit();
 
-    bool register_callback(std::function<int(SAMPLE_TYPE *, size_t)> fn);
+    // bool register_callback(std::function<int(const SAMPLE_TYPE *, size_t)> fn);
     bool connect(const std::string bluetooth_address);
 
-    void send_pilot_state(Pilot_State state);
+    void send_pilot_state(IO_TYPES::Pilot_State state);
 };
 
 template <class SAMPLE_TYPE>
-Data_IO<SAMPLE_TYPE>::Data_IO()
+Data_IO<SAMPLE_TYPE>::Data_IO(Data_Store<SAMPLE_TYPE, 256> &d) : ds(d)
 {
     bt_server.open_con();
 
@@ -57,7 +61,7 @@ template <class SAMPLE_TYPE>
 Data_IO<SAMPLE_TYPE>::~Data_IO()
 {
     bt_client.quit();
-    
+
     bt_server.close_con();
     bt_server.quit();
 
@@ -76,9 +80,38 @@ void Data_IO<SAMPLE_TYPE>::run()
     {
         if (bt_server.available() > 0)
         {
+            // receive packets
             auto packets = bt_server.get_all();
             for (auto i = packets.begin(); i != packets.end(); i++)
-                i->print();
+            {
+                switch (i->get()[0])
+                {
+                case ID_SAMPLE:
+                {
+                    // construct sample buffer from packet
+                    int samples_len = i->size()/4 - 1;
+                    std::vector<IO_TYPES::Sample> smps;
+                    for(int j = 0; j < samples_len; j+=2)
+                    {
+                        smps.push_back(IO_TYPES::Sample(i->get()[1 + j], i->get()[1 + j + 1]));
+                    }
+                    ds.new_data(smps.data(), smps.size());
+                    break;
+                }
+                case ID_ECE_BPM:
+                {
+                    ds.set_ece_bpm(i->get()[1]);
+                    break;
+                }
+                case ID_ECE_PO2:
+                {
+                    ds.set_ece_po2(i->get()[1]);
+                    break;
+                }
+                default:
+                    break;
+                }
+            }
         }
     }
 }
@@ -100,12 +133,12 @@ void Data_IO<SAMPLE_TYPE>::quit()
  * @param fn: Callback function
  * @returns: True if successful, false otherwise
  */
-template <class SAMPLE_TYPE>
-bool Data_IO<SAMPLE_TYPE>::register_callback(std::function<int(SAMPLE_TYPE *, size_t)> fn)
-{
-    insert_callback = fn;
-    return true;
-}
+// template <class SAMPLE_TYPE>
+// bool Data_IO<SAMPLE_TYPE>::register_callback(std::function<int(const SAMPLE_TYPE *, size_t)> fn)
+// {
+//     insert_callback = fn;
+//     return true;
+// }
 
 /**
  * connect: Initialize a Bluetooth connection.
@@ -123,10 +156,10 @@ bool Data_IO<SAMPLE_TYPE>::connect(std::string bluetooth_address)
  * @param state: Pilot state to send.
  */
 template <class SAMPLE_TYPE>
-void Data_IO<SAMPLE_TYPE>::send_pilot_state(Pilot_State state)
+void Data_IO<SAMPLE_TYPE>::send_pilot_state(IO_TYPES::Pilot_State state)
 {
     if (bt_client.connection_created)
-        bt_client.push(PHMS_Bluetooth::Packet(&state, 1));
+        bt_client.push(PHMS_Bluetooth::Packet(&state, sizeof(IO_TYPES::Pilot_State)));
     else
         std::cerr << "No active Bluetooth client connection.\n";
 }

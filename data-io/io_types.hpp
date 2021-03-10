@@ -4,43 +4,48 @@
 #include <chrono>
 #include <iostream>
 
-using po2_sample = uint32_t;
-using optical_sample = uint32_t;
-
-struct Sample
+namespace IO_TYPES
 {
-	po2_sample po2;
-	optical_sample optical;
-	std::chrono::_V2::system_clock::time_point time_stamp;
-	Sample();
-	Sample(po2_sample p, optical_sample o);
-};
 
-Sample::Sample()
-{
-	time_stamp = std::chrono::system_clock::now();
-};
+	using po2_sample = uint32_t;
+	using optical_sample = uint32_t;
 
-Sample::Sample(po2_sample p, optical_sample o) : po2(p), optical(o)
-{
-	time_stamp = std::chrono::system_clock::now();
-}
+	struct Sample
+	{
+		po2_sample po2;
+		optical_sample optical;
+		std::chrono::_V2::system_clock::time_point time_stamp;
+		Sample();
+		Sample(po2_sample p, optical_sample o);
+	};
 
-std::ostream &operator<<(std::ostream &os, const Sample s)
-{
-	os << "Sample recorded at " << s.time_stamp.time_since_epoch().count() << " (po2: " << s.po2 << ", optical: " << s.optical << ")";
-	return os;
-}
+	Sample::Sample()
+	{
+		time_stamp = std::chrono::system_clock::now();
+	};
 
-bool operator==(const Sample &s, const Sample &x) {
-	if(s.optical == x.optical && s.po2 == x.po2 && s.time_stamp == x.time_stamp)
-		return true;
+	Sample::Sample(po2_sample p, optical_sample o) : po2(p), optical(o)
+	{
+		time_stamp = std::chrono::system_clock::now();
+	}
 
-	return false;
-}
+	std::ostream &operator<<(std::ostream &os, const Sample s)
+	{
+		os << "Sample recorded at " << s.time_stamp.time_since_epoch().count() << " (po2: " << s.po2 << ", optical: " << s.optical << ")";
+		return os;
+	}
 
-enum Pilot_State
-{
-	UNSTRESSED,
-	STRESSED
-};
+	bool operator==(const Sample &s, const Sample &x)
+	{
+		if (s.optical == x.optical && s.po2 == x.po2 && s.time_stamp == x.time_stamp)
+			return true;
+
+		return false;
+	}
+
+	enum Pilot_State
+	{
+		UNSTRESSED,
+		STRESSED
+	};
+} // namespace IO_TYPES
