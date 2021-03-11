@@ -30,7 +30,9 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    // open bluetooth connection
+    // open bluetooth connections
+
+    // client
     PHMS_Bluetooth::Client c;
     int con_stat = c.open_con(std::string(argv[1]));
     if (con_stat == -1)
@@ -38,15 +40,19 @@ int main(int argc, char *argv[])
         std::cerr << "Error opening connection to bluetooth device at " << argv[1] << '.' << std::endl;
         return 1;
     }
+    // spawn bluetooth client in a new thread
+    std::thread client(&PHMS_Bluetooth::Client::run, &c);
+
+    // server in a new thread
+    PHMS_Bluetooth::Server s;
+    s.open_con();
+    std::thread server(&PHMS_Bluetooth::Server::run, &s);
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // Send Samples and ECE measurements.
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    // spawn bluetooth communication in a new thread
-    std::thread client(&PHMS_Bluetooth::Client::run, &c);
-
-    // write data here
+    // write data here for all tests
     uint32_t buffer[PACKET_SIZE * 2 + 1]{0};
 
     // SAMPLE PACKETS =================================================================================================
@@ -100,24 +106,13 @@ int main(int argc, char *argv[])
     std::cout << "sent packet with po2 measurement (" << po2 << ")\n";
     std::cout << "Finished sending." << std::endl;
 
-    std::cout << "Press enter to begin Pilot State tests.\n";
-    std::cin.getline(nullptr, 0);
-
-    // end bluetooth connection and thread
-    c.close_con();
-    c.quit();
-    client.join();
+    std::cout << "Beginning begin Pilot State tests.\n";
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // Receive Pilot States.
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // Pilot State tests
-
-    PHMS_Bluetooth::Server s;
-    s.open_con();
-
-    std::thread server(&PHMS_Bluetooth::Server::run, &s);
 
     // Once everything has been received
     std::cout << "Press enter once all samples have been transmitted. (1)\n";
@@ -131,6 +126,11 @@ int main(int argc, char *argv[])
         state_count++;
 
     std::cout << "Received " << state_count << " Pilot States.\n";
+
+    // end bluetooth connections and threads
+    c.close_con();
+    c.quit();
+    client.join();
 
     s.close_con();
     s.quit();

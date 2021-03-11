@@ -72,7 +72,7 @@ PHMS_Bluetooth::Server::~Server()
  */
 int PHMS_Bluetooth::Server::open_con()
 {
-    if(connection_created == true)
+    if (connection_created == true)
         return -1;
 
     // allocate socket
@@ -137,8 +137,7 @@ void PHMS_Bluetooth::Server::quit()
  */
 void PHMS_Bluetooth::Server::run()
 {
-    if (connection_created == false)
-        return;
+    while (connection_created == false);
 
     uint8_t buffer[MAX_PKT_SIZE]{0};
 

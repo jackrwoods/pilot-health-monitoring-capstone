@@ -181,7 +181,7 @@ void Data_IO<SAMPLE_TYPE>::send_pilot_state(IO_TYPES::Pilot_State state)
 
     PHMS_Bluetooth::Packet p = PHMS_Bluetooth::Packet(2, buffer);
 
-    p.print();
+    // p.print();
 
     bt_client.push(p);
     // std::cerr << "No active Bluetooth client connection.\n";
