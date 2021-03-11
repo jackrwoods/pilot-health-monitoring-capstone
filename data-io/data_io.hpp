@@ -105,9 +105,7 @@ void Data_IO<SAMPLE_TYPE>::run()
                     {
                         smps.push_back(IO_TYPES::Sample(data[1 + j], data[1 + j + 1]));
                     }
-                    std::cout << ds.new_data(smps.data(), smps.size()) * 2 << ", ";
-                    // for(auto j = smps.begin(); j != smps.end(); j++)
-                        // std::cout << *j << std::endl;
+                    ds.new_data(smps.data(), smps.size());
 
                     break;
                 }
