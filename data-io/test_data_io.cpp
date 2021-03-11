@@ -1,5 +1,6 @@
 #include <iostream>
 #include <thread>
+#include <chrono>
 
 #include "./data_io.hpp"
 #include "./io_types.hpp" // temporary access to sample types for testing only
@@ -26,8 +27,18 @@ void thread_ex()
     std::cout << total_samples * 2 << " total received samples.\n";
 }
 
-int main()
+int main(int argc, char *argv[])
 {
+    std::cout << "Data IO block tests" << std::endl;
+
+    if (argc != 2)
+    {
+        std::cerr << "Exactly one command line argument required: ./test_client.out [blueooth address]" << std::endl;
+        return 1;
+    }
+
+    std::string bt_address = std::string(argv[1]);
+
     std::cout << "Test data I/O block\n";
 
     Data_IO<IO_TYPES::Sample> dio(ds);
@@ -39,10 +50,14 @@ int main()
     std::cout << "Initial ECE PO2 value: " << init_po2 << std::endl;
 
     std::thread th0(thread_ex);
+    dio.open_server();
     std::thread th_dio(&Data_IO<IO_TYPES::Sample>::run, std::ref(dio));
     std::cout << "Data I/O block is receiving..." << std::endl;
 
+    // control when program stops
+    std::cout << "Press enter when all samples have been transmitted.\n";
     std::cin.getline(nullptr, 0);
+
     dio.quit();
     th_dio.join();
 
@@ -52,6 +67,33 @@ int main()
     std::cout << "Current ECE BPM value: " << ds.get_ece_bpm() << std::endl;
     std::cout << "Current ECE PO2 value: " << ds.get_ece_po2() << std::endl;
 
+    // Pilot state tests
+    std::cout << "Press enter to begin Pilot state transmission tests.\n";
+    std::cin.getline(nullptr, 0);
+
+    if(!dio.connect(bt_address)) {
+        std::cerr << "An error occurred connecting to " << bt_address << std::endl;
+        return 1;
+    }
+
+    // transmit 64 pilot states over bluetooth
+
+    std::cout << "Transmitting Pilot States\n";
+
+    auto start = std::chrono::high_resolution_clock::now();
+
+    for(int i = 0; i < 64; i++)
+        dio.send_pilot_state(static_cast<IO_TYPES::Pilot_State>(i%2));
+
+    auto end = std::chrono::high_resolution_clock::now();
+    auto nanos = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count() / 64;
+    float hz = 1000000000.0 / nanos;
+
+    std::cout << "Transmitted Pilot states at " << hz << " hertz. \n";
+
+    std::cout << "Press enter to complete program." << std::endl;
+    std::cin.getline(nullptr, 0);
+    
     dio.quit();
     return 0;
 }

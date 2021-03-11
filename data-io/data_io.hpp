@@ -14,6 +14,8 @@
 #define ID_ECE_BPM 0xFE
 #define ID_ECE_PO2 0xFD
 
+#define ID_PILOTSTATE 0xFC
+
 /**
  * Data_IO: Receive Bluetooth data and write to datastore
  */
@@ -46,12 +48,13 @@ public:
     bool connect(const std::string bluetooth_address);
 
     void send_pilot_state(IO_TYPES::Pilot_State state);
+
+    int open_server();
 };
 
 template <class SAMPLE_TYPE>
 Data_IO<SAMPLE_TYPE>::Data_IO(Data_Store<SAMPLE_TYPE, 256> &d) : ds(d)
 {
-    bt_server.open_con();
 
     bt_c = std::thread(&PHMS_Bluetooth::Client::run, std::ref(bt_client));
     bt_s = std::thread(&PHMS_Bluetooth::Server::run, std::ref(bt_server));
@@ -172,8 +175,24 @@ bool Data_IO<SAMPLE_TYPE>::connect(std::string bluetooth_address)
 template <class SAMPLE_TYPE>
 void Data_IO<SAMPLE_TYPE>::send_pilot_state(IO_TYPES::Pilot_State state)
 {
-    if (bt_client.connection_created)
-        bt_client.push(PHMS_Bluetooth::Packet(&state, sizeof(IO_TYPES::Pilot_State)));
-    else
-        std::cerr << "No active Bluetooth client connection.\n";
+    uint8_t buffer[2];
+    buffer[0] = ID_PILOTSTATE;
+    buffer[1] = (state == IO_TYPES::Pilot_State::STRESSED) ? 1 : 0;
+
+    PHMS_Bluetooth::Packet p = PHMS_Bluetooth::Packet(2, buffer);
+
+    p.print();
+
+    bt_client.push(p);
+    // std::cerr << "No active Bluetooth client connection.\n";
+}
+
+/**
+ * open_server: Accept any incoming Bluetooth connection
+ * @returns 0 on success
+ */
+template <class SAMPLE_TYPE>
+int Data_IO<SAMPLE_TYPE>::open_server()
+{
+    return bt_server.open_con();
 }

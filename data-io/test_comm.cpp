@@ -20,7 +20,6 @@
 #define ID_ECE_BPM 0xFE
 #define ID_ECE_PO2 0xFD
 
-
 int main(int argc, char *argv[])
 {
     std::cout << "Data IO block tests" << std::endl;
@@ -43,7 +42,6 @@ int main(int argc, char *argv[])
     // spawn bluetooth communication in a new thread
     std::thread client(&PHMS_Bluetooth::Client::run, &c);
 
-
     // write data here
     uint32_t buffer[PACKET_SIZE * 2 + 1]{0};
 
@@ -51,18 +49,19 @@ int main(int argc, char *argv[])
     // arbitrary. Defines sample packet
     buffer[0] = ID_SAMPLE;
 
-    std::cout << "Transmitting " << (SAMPLE_RATE * SECONDS) << " samples generated at " << SAMPLE_RATE << " hertz to " << argv[1] << "..." <<  std::endl;
+    std::cout << "Transmitting " << (SAMPLE_RATE * SECONDS) << " samples generated at " << SAMPLE_RATE << " hertz to " << argv[1] << "..." << std::endl;
 
     for (int round = 0; round < (SAMPLE_RATE * SECONDS) / PACKET_SIZE; round++)
     {
         // time data generation - should be 64hz
         auto start = std::chrono::high_resolution_clock::now();
 
-        for(int i = 0; i < PACKET_SIZE * 2; i+=2) {
+        for (int i = 0; i < PACKET_SIZE * 2; i += 2)
+        {
             // bpm sample
-            buffer[i+1] = i;
+            buffer[i + 1] = i;
             // po2 sample
-            buffer[i+2] = i;
+            buffer[i + 2] = i;
             usleep(995000 / SAMPLE_RATE);
         }
         c.push(buffer, PACKET_SIZE * 4 + 4);
@@ -72,7 +71,6 @@ int main(int argc, char *argv[])
 
         std::cout << "sent packet with data generation of " << hz << " hertz." << std::endl;
     }
-    std::cout << "Finished sending." << std::endl;
 
     // BPM MEASUREMENTS ===============================================================================================
     buffer[0] = ID_ECE_BPM; // arbitrary. Defines bpm measurement packet
@@ -95,20 +93,38 @@ int main(int argc, char *argv[])
     c.push(buffer, 8);
 
     std::cout << "sent packet with po2 measurement (" << po2 << ")\n";
-
+    std::cout << "Finished sending." << std::endl;
 
     // end bluetooth connection and thread
     c.close_con();
     c.quit();
     client.join();
 
-
-    // Receive tests
+    // Pilot State tests
+    std::cout << "Press enter to begin Pilot State tests.\n";
+    std::cin.getline(nullptr, 0);
 
     PHMS_Bluetooth::Server s;
-    // s.open_con();
+    s.open_con();
 
+    std::thread server(&PHMS_Bluetooth::Server::run, &s);
 
+    // Once everything has been received
+    std::cout << "Press enter once all samples have been transmitted.\n";
+    std::cin.getline(nullptr, 0);
+
+    auto v = s.get_all();
+
+    int state_count{0};
+
+    for (auto i = v.begin(); i != v.end(); i++)
+        state_count++;
+
+    std::cout << "Received " << state_count << " Pilot States.\n";
+
+    s.close_con();
+    s.quit();
+    server.join();
 
     return 0;
 }

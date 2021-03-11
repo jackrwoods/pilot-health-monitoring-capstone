@@ -148,8 +148,7 @@ void PHMS_Bluetooth::Client::quit()
 void PHMS_Bluetooth::Client::run()
 {
     // do not attempt to transmit data if a connection has not been created.
-    if (connection_created == false)
-        return;
+    while (connection_created == false && is_quit == false);
 
     while (is_quit == false)
     {
