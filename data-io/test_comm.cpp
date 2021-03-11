@@ -22,7 +22,7 @@
 
 int main(int argc, char *argv[])
 {
-    std::cout << "Data IO block tests" << std::endl;
+    std::cout << "Data IO block tests - Send Samples at 64 hz and receive Pilot States at 64 hz\n";
 
     if (argc != 2)
     {
@@ -38,6 +38,10 @@ int main(int argc, char *argv[])
         std::cerr << "Error opening connection to bluetooth device at " << argv[1] << '.' << std::endl;
         return 1;
     }
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // Send Samples and ECE measurements.
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // spawn bluetooth communication in a new thread
     std::thread client(&PHMS_Bluetooth::Client::run, &c);
@@ -96,14 +100,19 @@ int main(int argc, char *argv[])
     std::cout << "sent packet with po2 measurement (" << po2 << ")\n";
     std::cout << "Finished sending." << std::endl;
 
+    std::cout << "Press enter to begin Pilot State tests.\n";
+    std::cin.getline(nullptr, 0);
+
     // end bluetooth connection and thread
     c.close_con();
     c.quit();
     client.join();
 
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // Receive Pilot States.
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
     // Pilot State tests
-    std::cout << "Press enter to begin Pilot State tests.\n";
-    std::cin.getline(nullptr, 0);
 
     PHMS_Bluetooth::Server s;
     s.open_con();
@@ -111,7 +120,7 @@ int main(int argc, char *argv[])
     std::thread server(&PHMS_Bluetooth::Server::run, &s);
 
     // Once everything has been received
-    std::cout << "Press enter once all samples have been transmitted.\n";
+    std::cout << "Press enter once all samples have been transmitted. (1)\n";
     std::cin.getline(nullptr, 0);
 
     auto v = s.get_all();

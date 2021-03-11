@@ -29,7 +29,7 @@ void thread_ex()
 
 int main(int argc, char *argv[])
 {
-    std::cout << "Data IO block tests" << std::endl;
+    std::cout << "Data IO block tests - Recieve Samples and send Pilot states.\n";
 
     if (argc != 2)
     {
@@ -39,8 +39,6 @@ int main(int argc, char *argv[])
 
     std::string bt_address = std::string(argv[1]);
 
-    std::cout << "Test data I/O block\n";
-
     Data_IO<IO_TYPES::Sample> dio(ds);
 
     int init_bpm = ds.get_ece_bpm();
@@ -48,6 +46,10 @@ int main(int argc, char *argv[])
 
     std::cout << "Initial ECE BPM value: " << init_bpm << std::endl;
     std::cout << "Initial ECE PO2 value: " << init_po2 << std::endl;
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // Receive Samples and ECE measurements.
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     std::thread th0(thread_ex);
     dio.open_server();
@@ -68,8 +70,14 @@ int main(int argc, char *argv[])
     std::cout << "Current ECE PO2 value: " << ds.get_ece_po2() << std::endl;
 
     // Pilot state tests
-    std::cout << "Press enter to begin Pilot state transmission tests.\n";
+    std::cout << "Press enter to begin Pilot state transmission tests. (2)\n";
     std::cin.getline(nullptr, 0);
+
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // Send Pilot State Samples
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 
     if(!dio.connect(bt_address)) {
         std::cerr << "An error occurred connecting to " << bt_address << std::endl;
