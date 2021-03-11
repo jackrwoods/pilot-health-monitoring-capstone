@@ -64,7 +64,8 @@ int main(int argc, char *argv[])
             buffer[i + 2] = i;
             usleep(995000 / SAMPLE_RATE);
         }
-        c.push(buffer, PACKET_SIZE * 4 + 4);
+        c.push(buffer, PACKET_SIZE * 4);
+
         auto end = std::chrono::high_resolution_clock::now();
         auto nanos = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count() / PACKET_SIZE;
         float hz = 1000000000.0 / nanos;
