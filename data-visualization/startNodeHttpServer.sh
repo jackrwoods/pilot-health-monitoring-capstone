@@ -11,10 +11,11 @@ if ! node --version | grep -q ${NODE_VER}; then
 	PATH=$(pwd)/node-v${NODE_VER}-linux-armv6l/bin:${PATH}
 fi
 
-echo "Building React app..."
-npm install
-npm run build
+#echo "Building React app..."
+#npm install
+#npm run build
 
 echo "Starting http server..."
-npm serve -p 80
+#npm install -g serve
+serve -s build -p 80
 
