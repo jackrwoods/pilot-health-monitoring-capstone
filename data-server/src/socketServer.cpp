@@ -16,19 +16,18 @@ WsServer server;
 
 // Simple datasource callback.
 // This produces a json string and sends it to all websocket clients.
-void sendDataToAllClients(struct RawOutput* data) {
-	if (data->deviceType == MAX30100) {
-		//TEMP MOCK DATA GENERATION
+void sendDataToAllClients(struct Sample* data) {
+	if (data->sourceType == MAX30100) {
 		srand(time(NULL));
 
 		std::string json = "{\"timestamp\": ";
 		json += std::to_string(data->timestamp.time_since_epoch().count());
 		json += ",\"temperature\": ";
 		json += std::to_string(data->temperature.value);
-		json += ", \"ir\": ";
-		json += std::to_string(data->irLED.value);
-		json +=	", \"r\": ";
-		json += std::to_string(data->redLED.value);
+		json += ", \"HR\": ";
+		json += std::to_string(5.0 * sin(rand() % 100) + 80);
+		json +=	", \"SpO2\": ";
+		json += std::to_string(5.0 * sin(rand() % 10) + 95);
 		json += ", \"sentTimestamp\": ";
 		json += std::to_string(std::chrono::time_point_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now()).time_since_epoch().count());
 		json += "}";
