@@ -20,17 +20,14 @@ int main() {
 	std::thread* server = new std::thread(&startServer, &datasource);
 
 	std::cout << "Starting DB thread...";
-	//SQL_Connection* db = new SQL_Connection();
-	//std::function<void(struct Sample*)> dbCallback(std::bind(&SQL_Connection::insert_sample, db, std::placeholders::_1));
-	//datasource.registerCallback(dbCallback);
+	SQL_Connection* db = new SQL_Connection();
+	std::function<void(struct Sample*)> dbCallback(std::bind(&SQL_Connection::insert_sample, db, std::placeholders::_1));
+	datasource.registerCallback(dbCallback);
 
 	std::cout << "Reading from datasource. \n";
 	datasource.initializeConnection();
 
-	while(1) {
-		// std::this_thread::sleep_for(std::chrono::milliseconds(10000));
-		// std::cout << "Selected " << db->select_all_samples() << " samples from DB in 10 seconds.\n";
-	}
+	while(1);
 
 	return 0;
 }

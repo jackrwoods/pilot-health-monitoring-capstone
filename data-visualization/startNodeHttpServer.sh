@@ -12,10 +12,7 @@ if ! node --version | grep -q ${NODE_VER}; then
 fi
 
 #echo "Building React app..."
-#npm install
 #npm run build
 
 echo "Starting http server..."
-#npm install -g serve
-serve -s build -p 80
-
+node HttpServer.js
