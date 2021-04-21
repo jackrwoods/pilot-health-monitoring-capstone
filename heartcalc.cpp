@@ -14,6 +14,7 @@ int main ()
     {
         inputFile >> heartdata[i];
     }
+
     /*
     for (int i = 0; i < 61; i++)
     {
