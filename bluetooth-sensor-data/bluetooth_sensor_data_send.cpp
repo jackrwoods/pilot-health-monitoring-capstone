@@ -11,7 +11,6 @@
 // samples per packet
 #define PACKET_SIZE 32
 
-
 int main(int argc, char *argv[])
 {
     std::cout << "Mock PO2 Sensor Send test" << std::endl;
@@ -31,22 +30,30 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    // open file for reading
-    std::ifstream input_file(argv[2], std::ios::in);
-    if(!input_file.is_open())
-    {
-        std::cerr << "Error opening file " << argv[2] << "." << std::endl;
-        return 1;
-    }
-
-
     // spawn bluetooth communication in a new thread
     std::thread bt_thread(&PHMS_Bluetooth::Client::run, &c);
 
+    // read data from input file
+    std::vector<Sample> samples = sample_buffer_from_file(argv[2]);
 
-    // read data from input file, send
-
-
+    while (samples.size() > 0)
+    {
+        std::vector<Sample> this_round;
+        if (samples.size() > 32)
+        {
+            this_round.insert(this_round.begin(), samples.begin(), samples.begin() + PACKET_SIZE);
+            samples.erase(samples.begin(), samples.begin() + 32);
+        }
+        else
+        {
+            this_round.insert(this_round.begin(), samples.begin(), samples.end());
+            samples.clear();
+        }
+        // sleep half a second between rounds of 32 packts. Adjust this as needed.
+        usleep(500000);
+        c.push(packet_from_Sample_buffer(this_round));
+        std::cout << "Pushing " << this_round.size() << " packets\n";
+    }
 
     // end bluetooth connection and thread
     c.quit();
