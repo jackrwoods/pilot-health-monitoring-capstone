@@ -48,7 +48,7 @@ private:
 	}
 public:
 	BluetoothReceiver() {
-		std::cout << "Mock PO2 Sensor Recieve test ('hcitool dev' in terminal returns the bluetooth address of this device)" << std::endl;
+		std::cout << "Bluetooth Sample Recieve ('hcitool dev' in terminal returns the bluetooth address of this device)" << std::endl;
 	}
 
 	void initializeConnection() {

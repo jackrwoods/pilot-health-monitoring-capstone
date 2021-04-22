@@ -13,8 +13,7 @@
 int main()
 {
 	std::cout << "Starting up...\n";
-	// Max30100 datasource;
-	Max30100 datasource;
+	BluetoothReceiver datasource;
 
 	datasource.initializeConnection();
 
