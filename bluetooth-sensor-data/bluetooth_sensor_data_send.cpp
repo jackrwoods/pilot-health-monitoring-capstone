@@ -2,8 +2,9 @@
 #include <thread>
 #include <fstream>
 
-#include "./bluetooth/bluetooth_con.hpp"
-#include "./sample_types.hpp"
+#include "../data-server/include/bluetooth/bluetooth_con.hpp"
+#include "../data-server/include/bluetooth_utils.hpp"
+#include "../data-server/include/datasource.hpp"
 
 // samples per second to send
 #define SAMPLE_RATE 64
