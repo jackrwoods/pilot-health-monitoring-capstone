@@ -36,7 +36,7 @@ SQL_Connection::SQL_Connection() {
 	if (sqlite3_open_v2(
 		"./data/samples_database.db",
 		&this->db,
-		SQLITE_OPEN_MEMORY | SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE,
+		SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE,
 		NULL // Empty string uses the default VFS module
 	) != SQLITE_OK) std::cout << "Error creating database.\n";
 
@@ -117,8 +117,8 @@ int SQL_Connection::insert_sample(Sample* s)
 	sqlite3_bind_int64(this->insertSample, 1, s->timestamp.time_since_epoch().count());
 
 	// Bind everything else
-	sqlite3_bind_int(this->insertSample, 2, (int) s->redLED.value);
-	sqlite3_bind_int(this->insertSample, 3, (int) s->irLED.value);
+	sqlite3_bind_double(this->insertSample, 2, s->redLED.value);
+	sqlite3_bind_double(this->insertSample, 3, s->irLED.value);
 	sqlite3_bind_double(this->insertSample, 4, s->temperature.value);
 	sqlite3_bind_double(this->insertSample, 5, s->bpm.value);
 	sqlite3_bind_double(this->insertSample, 6, s->spo2.value);
