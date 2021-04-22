@@ -12,11 +12,6 @@
 #include <queue>
 
 // An enumeration of all data sources. Currently, only the MAX30100 is implemented.
-enum Source {
-	MAX30100
-	// Possibly add the ECE group's block as a "device" here?
-};
-
 // An enumeration containing various units of measure
 enum UnitOfMeasure {
 	CELSIUS,
