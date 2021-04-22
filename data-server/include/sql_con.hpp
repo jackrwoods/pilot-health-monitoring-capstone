@@ -96,14 +96,18 @@ int SQL_Connection::insert_samples(const std::vector<Sample> &v)
 	std::string cmd_insert = "INSERT INTO Samples(ID, Timestamp, R_LED, IR_LED, Temperature, BPM, SpO2, PilotState) VALUES ";
 	for (auto vi = v.begin(); vi != v.end(); vi++)
 	{
-		cmd_insert += "(" + std::to_string(vi->timestamp) + ',' + std::to_string(vi->redLED.value) + ',' + std::to_string(vi->irLED.value) + ',' + std::to_string(vi->temperature.value) + ',' + std::to_string(vi->bpm.value) + ',' + std::to_string(vi->spo2.value) + ',' + std::to_string(vi->pilotState.value) + ")";
+		cmd_insert += "(NULL, " + std::to_string(vi->timestamp) + ',' + std::to_string(vi->redLED.value) + ',' + std::to_string(vi->irLED.value) + ',' + std::to_string(vi->temperature.value) + ',' + std::to_string(vi->bpm.value) + ',' + std::to_string(vi->spo2.value) + ',' + std::to_string(vi->pilotState.value) + ")";
+
 
 		if (vi + 1 != v.end())
 			cmd_insert += ',';
 	}
 	cmd_insert += ';';
+	std::cout << cmd_insert << std::endl;
 
-	return query_execute(cmd_insert.c_str());
+	int ret = query_execute(cmd_insert.c_str());
+	std::cout << ret << std::endl;
+	return ret;
 }
 
 /**

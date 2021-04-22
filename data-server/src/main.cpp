@@ -16,6 +16,8 @@ int main()
 	// Max30100 datasource;
 	Max30100 datasource;
 
+	datasource.initializeConnection();
+
 	std::cout << "Registering data store callback...\n";
 	Data_Store<Sample> *ds = new Data_Store<Sample>(&datasource);
 
@@ -34,8 +36,11 @@ int main()
 	while (true)
 	{
 		// Flush buffered samples to db twice per second
-		std::this_thread::sleep_for(std::chrono::milliseconds(5000));
-		db->insert_samples(ds->vec());
+		std::this_thread::sleep_for(std::chrono::milliseconds(500));
+		auto vec = ds->vec();
+		if(vec.size() > 0)
+			db->insert_samples(vec);
+		// printf("flushed to database\n");
 	}
 
 	return 0;
