@@ -37,7 +37,7 @@ struct Sample
 {
 	// std::chrono::_V2::system_clock::time_point timestamp; // Timestamp corresponding to when this was created
 	long timestamp;             // Timestamp corresponding to when this was created - ms since collection was started?
-	Source sourceType{ UNKNOWN }; // Describes what created this sample. ie: data interpreter, sensor, etc
+	Source sourceType; // Describes what created this sample. ie: data interpreter, sensor, etc
 	Value irLED;                // Infrared LED observation
 	Value redLED;               // Red LED observation
 	Value temperature;          // Temperature observation

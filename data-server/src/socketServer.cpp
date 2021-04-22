@@ -21,7 +21,7 @@ void sendDataToAllClients(struct Sample* data) {
 		srand(time(NULL));
 
 		std::string json = "{\"timestamp\": ";
-		json += std::to_string(data->timestamp.time_since_epoch().count());
+		json += std::to_string(data->timestamp);
 		json += ",\"temperature\": ";
 		json += std::to_string(data->temperature.value);
 		json += ", \"HR\": ";
