@@ -96,7 +96,7 @@ Data_Store<SAMPLE_TYPE>::Data_Store(Datasource* ds)
     read_buffers.reserve(16);
 
 	// Listen to the datasource for new data asynchronously
-	std::function<void(struct SAMPLE_TYPE*)> callback(std::bind(&Data_Store::new_data, this));
+	std::function<void(SAMPLE_TYPE*)> callback(std::bind(&Data_Store::new_data, this));
 	ds->registerCallback(callback);
 }
 
