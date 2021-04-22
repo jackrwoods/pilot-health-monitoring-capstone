@@ -49,9 +49,11 @@ private:
 public:
 	BluetoothReceiver() {
 		std::cout << "Mock PO2 Sensor Recieve test ('hcitool dev' in terminal returns the bluetooth address of this device)" << std::endl;
+	}
 
+	void initializeConnection() {
 		// run a thread that sits and receives packets until the application quits
-		this->collector = new std::thread(&BluetoothReceiver::run_receive,this);
+		this->collector = new std::thread(&BluetoothReceiver::run_receive, this);
 		this->collector->detach();
 	}
 
