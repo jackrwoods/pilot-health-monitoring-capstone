@@ -8,11 +8,9 @@
 #include "ds_looping_buffer.hpp"
 #include "sql_con.hpp"
 
-<<<<<<< HEAD:data-server/include/ds_data_store.hpp
 #define BUFFER_LENGTH 1024
 =======
 #define BUFFER_LENGTH 128
->>>>>>> origin/data-store-redemption:data-store/ds_data_store.hpp
 
 /**
  * Reader
@@ -95,20 +93,16 @@ public:
     int size();
 };
 
-<<<<<<< HEAD:data-server/include/ds_data_store.hpp
-template <class LENGTH>
-Data_Store<LENGTH>::Data_Store(Datasource* ds) {
-    	// Listen to the datasource for new data asynchronously
-		std::function<void(struct Sample*)> callback(std::bind(&Data_Store::new_data, this, std::placeholders::_1));
-		ds->registerCallback(callback);
-		std::cout << "Registered data store callback.\n";
-=======
 template <typename SAMPLE_TYPE>
 Data_Store<SAMPLE_TYPE>::Data_Store()
 {
     // reserve space for 16 potential reader threads
     read_buffers.reserve(16);
->>>>>>> origin/data-store-redemption:data-store/ds_data_store.hpp
+
+	// Listen to the datasource for new data asynchronously
+	std::function<void(struct Sample*)> callback(std::bind(&Data_Store::new_data, this, std::placeholders::_1));
+	ds->registerCallback(callback);
+	std::cout << "Registered data store callback.\n";
 }
 
 template <typename SAMPLE_TYPE>
@@ -310,11 +304,7 @@ void Data_Store<SAMPLE_TYPE>::apply_new_data(const std::thread::id id)
 
     // copy directly into vector
     // this is probably a bad idea but I
-<<<<<<< HEAD:data-server/include/ds_data_store.hpp
     // could not think of a better way to do this
-=======
-    // could not think of a better way to do this+
->>>>>>> origin/data-store-redemption:data-store/ds_data_store.hpp
 
     reader.sample_buffer.clear();
     reader.sample_buffer.resize(available_samples());
@@ -322,12 +312,9 @@ void Data_Store<SAMPLE_TYPE>::apply_new_data(const std::thread::id id)
     reader.count += samples.copy_to(&reader.sample_buffer[0], reader.count, samples.samples_recv());
     // add exceptions if missed data?
 }
-<<<<<<< HEAD:data-server/include/ds_data_store.hpp
-=======
 
 template <class SAMPLE_TYPE>
 int Data_Store<SAMPLE_TYPE>::size()
 {
     return BUFFER_LENGTH;
 }
->>>>>>> origin/data-store-redemption:data-store/ds_data_store.hpp
