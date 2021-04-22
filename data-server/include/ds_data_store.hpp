@@ -9,7 +9,6 @@
 #include "sql_con.hpp"
 
 #define BUFFER_LENGTH 1024
-=======
 #define BUFFER_LENGTH 128
 
 /**
