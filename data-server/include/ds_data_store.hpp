@@ -6,7 +6,6 @@
 
 #include "datasource.hpp"
 #include "ds_looping_buffer.hpp"
-#include "sql_con.hpp"
 
 #define BUFFER_LENGTH 1024
 #define BUFFER_LENGTH 128
@@ -56,8 +55,6 @@ private:
     uint32_t ece_bpm{0};
     uint32_t ece_po2{0};
 
-    SQL_Connection sql;
-
     void apply_new_data(const std::thread::id id);
 
 public:
@@ -99,9 +96,8 @@ Data_Store<SAMPLE_TYPE>::Data_Store()
     read_buffers.reserve(16);
 
 	// Listen to the datasource for new data asynchronously
-	std::function<void(struct Sample*)> callback(std::bind(&Data_Store::new_data, this, std::placeholders::_1));
+	std::function<void(struct SAMPLE_TYPE*)> callback(std::bind(&Data_Store::new_data, this, std::placeholders::_1));
 	ds->registerCallback(callback);
-	std::cout << "Registered data store callback.\n";
 }
 
 template <typename SAMPLE_TYPE>

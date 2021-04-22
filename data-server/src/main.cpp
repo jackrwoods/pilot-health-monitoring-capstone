@@ -21,13 +21,18 @@ int main() {
 
 	std::cout << "Starting DB thread...";
 	SQL_Connection* db = new SQL_Connection();
-	//std::function<void(struct Sample*)> dbCallback(std::bind(&SQL_Connection::insert_sample, db, std::placeholders::_1));
-	datasource.registerCallback(dbCallback);
 
 	std::cout << "Reading from datasource. \n";
 	datasource.initializeConnection();
 
-	while(1);
+	// This job runs indefinitely.
+	// It inserts samples into the sqlite database in batches.
+	ds->register_reader_thread(); // How data_store tracks which samples have not been read yet
+	while (true) {
+		// Flush buffered samples to db twice per second
+		std::this_thread::sleep_for(std::chrono::milliseconds(500));
+		db->insert_samples(ds->vec());
+	}
 
 	return 0;
 }
