@@ -12,7 +12,7 @@ app.listen(port, () => {
 const json2csv = require('json2csv')
 const parser = new json2csv.Parser()
 const sqlite3 = require('sqlite3').verbose()
-const dbLocation = process.env.DB != null ? process.env.DB : '/home/pi/pilot-health-monitoring-capstone/data-server/data/samples_database.db'
+const dbLocation = process.env.DB != null ? process.env.DB : '../data-server/data/samples_database.db'
 let db = new sqlite3.Database(dbLocation, sqlite3.OPEN_READONLY, (error) => {
 	console.log('Connecting to ' + dbLocation)
 	if (error) console.log(error)
