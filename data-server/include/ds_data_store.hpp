@@ -96,7 +96,7 @@ Data_Store<SAMPLE_TYPE>::Data_Store()
     read_buffers.reserve(16);
 
 	// Listen to the datasource for new data asynchronously
-	std::function<void(struct SAMPLE_TYPE*)> callback(std::bind(&Data_Store::new_data, this, std::placeholders::_1));
+	std::function<void(struct SAMPLE_TYPE*)> callback(std::bind(&Data_Store::new_data, this));
 	ds->registerCallback(callback);
 }
 
@@ -222,6 +222,18 @@ int Data_Store<SAMPLE_TYPE>::new_data(SAMPLE_TYPE s)
 {
     return samples.block_write(s, 1);
 }
+
+/**
+ * new_data: Add one SAMPLE_TYPE to the data buffer. Calling thread must be registered as writer thread.
+ * @param s: SAMPLE_TYPE to add
+ * @returns Number of SAMPLE_TYPE successfully added to buffer
+ */
+template <typename SAMPLE_TYPE>
+int Data_Store<SAMPLE_TYPE>::new_data(SAMPLE_TYPE s*)
+{
+	return samples.block_write(*s, 1);
+}
+
 
 /**
  * register_reader_thread: Register current thread as a reader thread
