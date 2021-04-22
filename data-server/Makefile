@@ -15,7 +15,7 @@ LIBS=-lm
 _DEPS = datasource.hpp ds_data_store.hpp ds_looping_buffer.hpp sql_con.hpp
 DEPS = $(patsubst %,$(IDIR)/%,$(_DEPS))
 
-_OBJ = main.o max30100Datasource.o
+_OBJ = main.o max30100Datasource.o bluetooth_sensor_data_recv.o
 OBJ = $(patsubst %,$(ODIR)/%,$(_OBJ))
 
 
