@@ -17,8 +17,8 @@ class App extends Component {
     super(props);
 
     // Establish ping and data connections
-    this.pingClient = new W3CWebSocket('ws://10.3.141.1:8080/ping');
-    this.wsClient = new W3CWebSocket('ws://10.3.141.1:8080/data');
+      this.pingClient = new W3CWebSocket('ws://' + window.location.hostname + ':8080/ping');
+      this.wsClient = new W3CWebSocket('ws://' + window.location.hostname + ':8080/data');
 
     this.state = {
       connection: {
