@@ -38,7 +38,7 @@ private:
 					for (auto s : samples)
 						// Pass a pointer to the latest data to all of the callback functions.
 						for (callback = this->callbacks.begin(); callback != this->callbacks.end(); callback++) {
-							(*callback)(data);
+							(*callback)(&s);
 						}
 				}
 			}
