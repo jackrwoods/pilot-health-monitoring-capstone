@@ -57,7 +57,7 @@ private:
     void apply_new_data(const std::thread::id id);
 
 public:
-    Data_Store(Datasource* ds);
+    Data_Store(Datasource *ds);
     ~Data_Store();
 
     void set_bpm_variance(uint32_t i);
@@ -72,9 +72,9 @@ public:
     uint32_t get_ece_bpm() const;
     uint32_t get_ece_po2() const;
 
-    int new_data(SAMPLE_TYPE *src, size_t len);
+    void new_data(SAMPLE_TYPE *src, size_t len);
     void new_data(SAMPLE_TYPE *s);
-    int new_data(SAMPLE_TYPE s);
+    void new_data(SAMPLE_TYPE s);
 
     void register_reader_thread();
 
@@ -90,14 +90,14 @@ public:
 };
 
 template <typename SAMPLE_TYPE>
-Data_Store<SAMPLE_TYPE>::Data_Store(Datasource* ds)
+Data_Store<SAMPLE_TYPE>::Data_Store(Datasource *ds)
 {
     // reserve space for 16 potential reader threads
     read_buffers.reserve(16);
 
-	// Listen to the datasource for new data asynchronously
-	std::function<void(SAMPLE_TYPE*)> callback(std::bind(&Data_Store::new_data, this));
-	ds->registerCallback(callback);
+    // Listen to the datasource for new data asynchronously
+    // std::function<void(struct SAMPLE_TYPE*)> callback(std::bind(&Data_Store::new_data, this));
+    ds->registerCallback([&](Sample *s) { new_data(*s); });
 }
 
 template <typename SAMPLE_TYPE>
@@ -207,7 +207,7 @@ uint32_t Data_Store<SAMPLE_TYPE>::get_ece_po2() const
  * @returns Number of SAMPLE_TYPE successfully added to the buffer
  */
 template <typename SAMPLE_TYPE>
-int Data_Store<SAMPLE_TYPE>::new_data(SAMPLE_TYPE *src, size_t len)
+void Data_Store<SAMPLE_TYPE>::new_data(SAMPLE_TYPE *src, size_t len)
 {
     return samples.block_write(src, len);
 }
@@ -218,9 +218,9 @@ int Data_Store<SAMPLE_TYPE>::new_data(SAMPLE_TYPE *src, size_t len)
  * @returns Number of SAMPLE_TYPE successfully added to buffer
  */
 template <typename SAMPLE_TYPE>
-int Data_Store<SAMPLE_TYPE>::new_data(SAMPLE_TYPE s)
+void Data_Store<SAMPLE_TYPE>::new_data(SAMPLE_TYPE s)
 {
-    return samples.block_write(&s, 1);
+    samples.block_write(&s, 1);
 }
 
 /**
@@ -231,9 +231,8 @@ int Data_Store<SAMPLE_TYPE>::new_data(SAMPLE_TYPE s)
 template <typename SAMPLE_TYPE>
 void Data_Store<SAMPLE_TYPE>::new_data(SAMPLE_TYPE *s)
 {
-	return samples.block_write(s, 1);
+    samples.block_write(s, 1);
 }
-
 
 /**
  * register_reader_thread: Register current thread as a reader thread
