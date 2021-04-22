@@ -9,7 +9,7 @@
 #define SAMPLE_RATE 64
 
 // samples per packet
-#define PACKET_SIZE 32
+#define PACKET_SIZE 5
 
 int main(int argc, char *argv[])
 {
@@ -27,7 +27,7 @@ int main(int argc, char *argv[])
     if (con_stat == -1)
     {
         std::cerr << "Error opening connection to bluetooth device at " << argv[1] << '.' << std::endl;
-        return 1;
+        // return 1;
     }
 
     // spawn bluetooth communication in a new thread
@@ -36,25 +36,29 @@ int main(int argc, char *argv[])
     // read data from input file
     std::vector<Sample> samples = sample_buffer_from_file(argv[2]);
 
+    int total_samples{0};
+
     while (samples.size() > 0)
     {
         std::vector<Sample> this_round;
-        if (samples.size() > 32)
+        if (samples.size() > PACKET_SIZE)
         {
             this_round.insert(this_round.begin(), samples.begin(), samples.begin() + PACKET_SIZE);
-            samples.erase(samples.begin(), samples.begin() + 32);
+            samples.erase(samples.begin(), samples.begin() + PACKET_SIZE);
         }
         else
         {
             this_round.insert(this_round.begin(), samples.begin(), samples.end());
             samples.clear();
         }
-        // sleep half a second between rounds of 32 packts. Adjust this as needed.
-        usleep(500000);
+        // calculate approximate sleep for desired sample rate with packet size
+        usleep(1000000 / (SAMPLE_RATE / PACKET_SIZE));
         c.push(packet_from_Sample_buffer(this_round));
-        std::cout << "Pushing " << this_round.size() << " packets\n";
+        std::cout << "Pushing " << this_round.size() << " samples\n";
+        total_samples += this_round.size();
     }
 
+    std::cout << "Sent " << total_samples << " samples.\n";
     // end bluetooth connection and thread
     c.quit();
     bt_thread.join();
