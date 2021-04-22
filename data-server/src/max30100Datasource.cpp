@@ -47,7 +47,7 @@ class Max30100: public Datasource {
 
 				// Create new sample struct
 				struct Sample* data = new struct Sample();
-				data->timestamp = (long) std::chrono::time_point_cast<std::chrono::milliseconds>(t).count();
+				data->timestamp = (long) std::chrono::time_point_cast<std::chrono::milliseconds>(t).time_since_epoch().count();
 				data->sourceType = MAX30100;
 				// Read temp data
 				data->temperature.unit = CELSIUS;
