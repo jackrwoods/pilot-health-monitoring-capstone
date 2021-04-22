@@ -13,7 +13,7 @@
 
 int main(int argc, char *argv[])
 {
-    std::cout << "Mock PO2 Sensor Send test" << std::endl;
+    std::cout << "Mock Sensor Data Send" << std::endl;
 
     if (argc != 3)
     {
@@ -27,7 +27,7 @@ int main(int argc, char *argv[])
     if (con_stat == -1)
     {
         std::cerr << "Error opening connection to bluetooth device at " << argv[1] << '.' << std::endl;
-        // return 1;
+        return 1;
     }
 
     // spawn bluetooth communication in a new thread

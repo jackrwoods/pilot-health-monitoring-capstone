@@ -20,12 +20,12 @@ void run_receive()
         {
             // grab all available bluetooth packets
             std::vector<PHMS_Bluetooth::Packet> v = s.get_all();
-            received_samples += v.size();
 
             // for each bluetooth packet received, get the samples, print them
             for (auto i : v)
             {
                 std::vector<Sample> samples = sample_buffer_from_bt_packet(i);
+                received_samples += samples.size();
                 for (auto s : samples)
                     print(s);
             }
