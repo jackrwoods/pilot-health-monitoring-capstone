@@ -14,14 +14,14 @@ int main() {
 	Max30100 datasource;
 
 	std::cout << "Registering data store callback...\n";
-	//Data_Store<Sample>* ds = new Data_Store<Sample>(&datasource);
+	Data_Store<Sample>* ds = new Data_Store<Sample>(&datasource);
 
 	std::cout << "Registering WebSocket callback...\n";
 	std::thread* server = new std::thread(&startServer, &datasource);
 
 	std::cout << "Starting DB thread...";
 	SQL_Connection* db = new SQL_Connection();
-	std::function<void(struct Sample*)> dbCallback(std::bind(&SQL_Connection::insert_sample, db, std::placeholders::_1));
+	//std::function<void(struct Sample*)> dbCallback(std::bind(&SQL_Connection::insert_sample, db, std::placeholders::_1));
 	datasource.registerCallback(dbCallback);
 
 	std::cout << "Reading from datasource. \n";
