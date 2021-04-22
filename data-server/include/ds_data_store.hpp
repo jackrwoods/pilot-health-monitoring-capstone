@@ -73,7 +73,7 @@ public:
     uint32_t get_ece_po2() const;
 
     int new_data(SAMPLE_TYPE *src, size_t len);
-    int new_data(SAMPLE_TYPE *s);
+    void new_data(SAMPLE_TYPE *s);
     int new_data(SAMPLE_TYPE s);
 
     void register_reader_thread();
@@ -229,7 +229,7 @@ int Data_Store<SAMPLE_TYPE>::new_data(SAMPLE_TYPE s)
  * @returns Number of SAMPLE_TYPE successfully added to buffer
  */
 template <typename SAMPLE_TYPE>
-int Data_Store<SAMPLE_TYPE>::new_data(SAMPLE_TYPE *s)
+void Data_Store<SAMPLE_TYPE>::new_data(SAMPLE_TYPE *s)
 {
 	return samples.block_write(s, 1);
 }
