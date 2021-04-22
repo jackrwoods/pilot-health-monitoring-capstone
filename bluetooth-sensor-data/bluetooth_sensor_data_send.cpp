@@ -11,9 +11,58 @@
 // samples per packet
 #define PACKET_SIZE 5
 
+bool transmission_quit {false};
+
+void send_packets(PHMS_Bluetooth::Client *cl, std::string filename)
+{
+    PHMS_Bluetooth::Client &c = *cl;
+    // read data from input file
+    std::vector<Sample> samples = sample_buffer_from_file(filename);
+
+    int total_samples{0};
+
+    auto start_time = std::chrono::high_resolution_clock::now();
+    while (!transmission_quit)
+    {
+        for (int i = 0; i + PACKET_SIZE < samples.size(); i += PACKET_SIZE)
+        {
+            if(transmission_quit)
+                break;
+
+            // measure the execution time of pushing to bluetooth client
+            auto inner_start_time = std::chrono::high_resolution_clock::now();
+
+            // construct vector of this round's samples to be transmitted
+            std::vector<Sample> this_round;
+            this_round.insert(this_round.begin(), samples.begin() + i, samples.begin() + i + PACKET_SIZE);
+            
+            c.push(packet_from_Sample_buffer(this_round));
+
+
+            auto inner_end_time = std::chrono::high_resolution_clock::now();
+            
+            auto inner_duration = std::chrono::duration_cast<std::chrono::microseconds>(inner_end_time - inner_start_time);
+            std::cout << "Pushed " << this_round.size() << " samples to bluetooth in " << inner_duration.count() << " microseconds...\n";
+
+            // calculate approximate sleep for desired sample rate with packet size to reach SAMPLE_RATE
+            // (1000000 / SAMPLE_RATE) => microseconds spent per sample
+            // * PACKET_SIZE, microseconds spent per packet
+            // subtract recorded time
+            usleep((1000000 / SAMPLE_RATE) * PACKET_SIZE - inner_duration.count());
+            total_samples += this_round.size();
+        }
+    }
+    auto end_time = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end_time - start_time);
+
+    std::cout << "Sent " << total_samples << " samples at " << total_samples / (duration.count() / 1000000.0f) << " hz\n";
+    // end bluetooth connection and thread
+}
+
 int main(int argc, char *argv[])
 {
     std::cout << "Mock Sensor Data Send" << std::endl;
+    std::cout << "Press Enter when done" << std::endl;
 
     if (argc != 3)
     {
@@ -33,33 +82,12 @@ int main(int argc, char *argv[])
     // spawn bluetooth communication in a new thread
     std::thread bt_thread(&PHMS_Bluetooth::Client::run, &c);
 
-    // read data from input file
-    std::vector<Sample> samples = sample_buffer_from_file(argv[2]);
+    std::thread send_thread(send_packets, &c, argv[2]);
 
-    int total_samples{0};
+    std::cin.getline(nullptr, 0);
+    transmission_quit = true;
 
-    auto sample_iter = samples.begin();
-
-    while (1)
-    {
-
-        std::vector<Sample> this_round;
-        if (sample_iter + PACKET_SIZE == samples.end())
-            sample_iter = samples.begin();
-
-        this_round.insert(this_round.begin(), samples.begin(), samples.begin() + PACKET_SIZE);
-
-        sample_iter += PACKET_SIZE;
-
-        // calculate approximate sleep for desired sample rate with packet size
-        usleep(1000000 / (SAMPLE_RATE / PACKET_SIZE));
-        c.push(packet_from_Sample_buffer(this_round));
-        std::cout << "Pushing " << this_round.size() << " samples\n";
-        total_samples += this_round.size();
-    }
-
-    std::cout << "Sent " << total_samples << " samples.\n";
-    // end bluetooth connection and thread
+    send_thread.join();
     c.quit();
     bt_thread.join();
 
