@@ -14,7 +14,7 @@ int main()
 {
 	std::cout << "Starting up...\n";
 	// Max30100 datasource;
-	BluetoothReceiver datasource;
+	Max30100 datasource;
 
 	std::cout << "Registering data store callback...\n";
 	Data_Store<Sample> *ds = new Data_Store<Sample>(&datasource);
@@ -34,7 +34,7 @@ int main()
 	while (true)
 	{
 		// Flush buffered samples to db twice per second
-		std::this_thread::sleep_for(std::chrono::milliseconds(500));
+		std::this_thread::sleep_for(std::chrono::milliseconds(5000));
 		db->insert_samples(ds->vec());
 	}
 
