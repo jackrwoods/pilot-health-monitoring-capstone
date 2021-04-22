@@ -8,7 +8,6 @@
 #include "ds_looping_buffer.hpp"
 
 #define BUFFER_LENGTH 1024
-#define BUFFER_LENGTH 128
 
 /**
  * Reader
@@ -74,6 +73,7 @@ public:
     uint32_t get_ece_po2() const;
 
     int new_data(SAMPLE_TYPE *src, size_t len);
+    int new_data(SAMPLE_TYPE *s);
     int new_data(SAMPLE_TYPE s);
 
     void register_reader_thread();
@@ -90,7 +90,7 @@ public:
 };
 
 template <typename SAMPLE_TYPE>
-Data_Store<SAMPLE_TYPE>::Data_Store()
+Data_Store<SAMPLE_TYPE>::Data_Store(Datasource* ds)
 {
     // reserve space for 16 potential reader threads
     read_buffers.reserve(16);
@@ -220,7 +220,7 @@ int Data_Store<SAMPLE_TYPE>::new_data(SAMPLE_TYPE *src, size_t len)
 template <typename SAMPLE_TYPE>
 int Data_Store<SAMPLE_TYPE>::new_data(SAMPLE_TYPE s)
 {
-    return samples.block_write(s, 1);
+    return samples.block_write(&s, 1);
 }
 
 /**
@@ -229,9 +229,9 @@ int Data_Store<SAMPLE_TYPE>::new_data(SAMPLE_TYPE s)
  * @returns Number of SAMPLE_TYPE successfully added to buffer
  */
 template <typename SAMPLE_TYPE>
-int Data_Store<SAMPLE_TYPE>::new_data(SAMPLE_TYPE s*)
+int Data_Store<SAMPLE_TYPE>::new_data(SAMPLE_TYPE *s)
 {
-	return samples.block_write(*s, 1);
+	return samples.block_write(s, 1);
 }
 
 
