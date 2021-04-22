@@ -38,19 +38,19 @@ int main(int argc, char *argv[])
 
     int total_samples{0};
 
-    while (samples.size() > 0)
+    auto sample_iter = samples.begin();
+
+    while (1)
     {
+
         std::vector<Sample> this_round;
-        if (samples.size() > PACKET_SIZE)
-        {
-            this_round.insert(this_round.begin(), samples.begin(), samples.begin() + PACKET_SIZE);
-            samples.erase(samples.begin(), samples.begin() + PACKET_SIZE);
-        }
-        else
-        {
-            this_round.insert(this_round.begin(), samples.begin(), samples.end());
-            samples.clear();
-        }
+        if (sample_iter + PACKET_SIZE == samples.end())
+            sample_iter = samples.begin();
+
+        this_round.insert(this_round.begin(), samples.begin(), samples.begin() + PACKET_SIZE);
+
+        sample_iter += PACKET_SIZE;
+
         // calculate approximate sleep for desired sample rate with packet size
         usleep(1000000 / (SAMPLE_RATE / PACKET_SIZE));
         c.push(packet_from_Sample_buffer(this_round));
