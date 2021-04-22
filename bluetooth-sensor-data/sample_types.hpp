@@ -170,7 +170,7 @@ std::vector<Sample> sample_buffer_from_file(const std::string filename)
 }
 
 // read a double from a byte pointer, return the length of the double in bytes
-int byte_to_double(const uint8_t* byte, Value &v)
+int byte_to_double(const uint8_t *byte, Value &v)
 {
     v.exists = true;
     v.value = *reinterpret_cast<const double *>(byte);
@@ -203,51 +203,32 @@ std::vector<Sample> sample_buffer_from_bt_packet(PHMS_Bluetooth::Packet p)
             break;
 
         case (BYTE_IDENTIFIER_sourceType):
-            // smp.sourceType = *reinterpret_cast<const long *>(&data[current_byte]);
             smp.sourceType = (Source)data[current_byte];
             current_byte += 1;
             break;
 
         case (BYTE_IDENTIFIER_irLED):
             current_byte += byte_to_double(&data[current_byte], smp.irLED);
-            // smp.irLED.exists = true;
-            // smp.irLED.value = *reinterpret_cast<const double *>(&data[current_byte]);
-            // current_byte += sizeof(smp.irLED.value);
             break;
 
         case (BYTE_IDENTIFIER_redLED):
             current_byte += byte_to_double(&data[current_byte], smp.redLED);
-            // smp.redLED.exists = true;
-            // smp.redLED.value = *reinterpret_cast<const double *>(&data[current_byte]);
-            // current_byte += sizeof(smp.redLED.value);
             break;
 
         case (BYTE_IDENTIFIER_temperature):
             current_byte += byte_to_double(&data[current_byte], smp.temperature);
-            // smp.temperature.exists = true;
-            // smp.temperature.value = *reinterpret_cast<const double *>(&data[current_byte]);
-            // current_byte += sizeof(smp.temperature.value);
             break;
 
         case (BYTE_IDENTIFIER_bpm):
             current_byte += byte_to_double(&data[current_byte], smp.bpm);
-            // smp.bpm.exists = true;
-            // smp.bpm.value = *reinterpret_cast<const double *>(&data[current_byte]);
-            // current_byte += sizeof(smp.bpm.value);
             break;
 
         case (BYTE_IDENTIFIER_avg_bpm):
             current_byte += byte_to_double(&data[current_byte], smp.avg_bpm);
-            // smp.avg_bpm.exists = true;
-            // smp.avg_bpm.value = *reinterpret_cast<const double *>(&data[current_byte]);
-            // current_byte += sizeof(smp.avg_bpm.value);
             break;
 
         case (BYTE_IDENTIFIER_spo2):
             current_byte += byte_to_double(&data[current_byte], smp.spo2);
-            // smp.spo2.exists = true;
-            // smp.spo2.value = *reinterpret_cast<const double *>(&data[current_byte]);
-            // current_byte += sizeof(smp.spo2.value);
             break;
 
         case (BYTE_IDENTIFIER_pilotState):
@@ -260,7 +241,7 @@ std::vector<Sample> sample_buffer_from_bt_packet(PHMS_Bluetooth::Packet p)
         }
     }
 
-    ret.erase(ret.begin(), ret.begin()+1);
+    ret.erase(ret.begin(), ret.begin() + 1);
     ret.push_back(smp);
 
     return ret;
@@ -302,7 +283,7 @@ PHMS_Bluetooth::Packet packet_from_Sample_buffer(const std::vector<Sample> &samp
         bytes.push_back((uint8_t)i.sourceType);
 
         // irLED
-        if(i.irLED.exists)
+        if (i.irLED.exists)
         {
             bytes.push_back(BYTE_IDENTIFIER_irLED);
             add = double_to_bytes(i.irLED.value);
@@ -310,7 +291,7 @@ PHMS_Bluetooth::Packet packet_from_Sample_buffer(const std::vector<Sample> &samp
         }
 
         // redLED
-        if(i.redLED.exists)
+        if (i.redLED.exists)
         {
             bytes.push_back(BYTE_IDENTIFIER_redLED);
             add = double_to_bytes(i.redLED.value);
@@ -318,7 +299,7 @@ PHMS_Bluetooth::Packet packet_from_Sample_buffer(const std::vector<Sample> &samp
         }
 
         // temperature
-        if(i.temperature.exists)
+        if (i.temperature.exists)
         {
             bytes.push_back(BYTE_IDENTIFIER_temperature);
             add = double_to_bytes(i.temperature.value);
@@ -326,7 +307,7 @@ PHMS_Bluetooth::Packet packet_from_Sample_buffer(const std::vector<Sample> &samp
         }
 
         // bpm
-        if(i.bpm.exists)
+        if (i.bpm.exists)
         {
             bytes.push_back(BYTE_IDENTIFIER_bpm);
             add = double_to_bytes(i.bpm.value);
@@ -334,14 +315,14 @@ PHMS_Bluetooth::Packet packet_from_Sample_buffer(const std::vector<Sample> &samp
         }
 
         // avg_bpm
-        if(i.avg_bpm.exists)
+        if (i.avg_bpm.exists)
         {
             bytes.push_back(BYTE_IDENTIFIER_avg_bpm);
             add = double_to_bytes(i.avg_bpm.value);
             bytes.insert(bytes.end(), add.begin(), add.end());
         }
         // spo2
-        if(i.spo2.exists)
+        if (i.spo2.exists)
         {
             bytes.push_back(BYTE_IDENTIFIER_spo2);
             add = double_to_bytes(i.spo2.value);
@@ -349,7 +330,7 @@ PHMS_Bluetooth::Packet packet_from_Sample_buffer(const std::vector<Sample> &samp
         }
 
         // pilotState
-        if(i.pilotState.exists)
+        if (i.pilotState.exists)
         {
             bytes.push_back(BYTE_IDENTIFIER_pilotState);
             add = double_to_bytes(i.pilotState.value);
@@ -359,7 +340,6 @@ PHMS_Bluetooth::Packet packet_from_Sample_buffer(const std::vector<Sample> &samp
 
     return PHMS_Bluetooth::Packet(bytes.size(), bytes.data());
 }
-
 
 // print all information from a sample
 void print(const Sample &sample)
