@@ -19,7 +19,7 @@ private:
 		PHMS_Bluetooth::Server s;
 		s.open_con();
 		std::thread bt_thread(&PHMS_Bluetooth::Server::run, &s);
-		
+
 		// Empty callback pointer
 		std::forward_list<std::function<void(struct Sample*)>>::iterator callback;
 
@@ -38,8 +38,8 @@ private:
 					for (auto s : samples)
 						// Pass a pointer to the latest data to all of the callback functions.
 						for (callback = this->callbacks.begin(); callback != this->callbacks.end(); callback++) {
-							(*callback)(&s);
-					}
+							(*callback)(data);
+						}
 				}
 			}
 		}
@@ -49,9 +49,11 @@ private:
 public:
 	BluetoothReceiver() {
 		std::cout << "Mock PO2 Sensor Recieve test ('hcitool dev' in terminal returns the bluetooth address of this device)" << std::endl;
+	}
 
+	void initializeConnection() {
 		// run a thread that sits and receives packets until the application quits
-		this->collector = new std::thread(&BluetoothReceiver::run_receive,this);
+		this->collector = new std::thread(&BluetoothReceiver::run_receive, this);
 		this->collector->detach();
 	}
 
