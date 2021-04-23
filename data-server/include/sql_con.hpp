@@ -103,11 +103,7 @@ int SQL_Connection::insert_samples(const std::vector<Sample> &v)
 			cmd_insert += ',';
 	}
 	cmd_insert += ';';
-	std::cout << cmd_insert << std::endl;
-
-	int ret = query_execute(cmd_insert.c_str());
-	std::cout << ret << std::endl;
-	return ret;
+	return query_execute(cmd_insert.c_str());
 }
 
 /**
