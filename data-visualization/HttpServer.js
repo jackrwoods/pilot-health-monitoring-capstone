@@ -19,6 +19,27 @@ let db = new sqlite3.Database(dbLocation, sqlite3.OPEN_READONLY, (error) => {
 	else console.log('Connected to DB.')
 })
 app.get('/api/csv', (request, result) => {
+	db.run('.mode csv', (error, rows) => {
+        if (error) {
+			console.log(error)
+		} else {
+			const filename = 'samples-' + new Date().getTime() + '.csv';
+			db.run('.output ' + filename, (error) => {
+				if (error) {
+					console.log(error)
+				} else {
+					db.run('SELECT * FROM Samples', (error) => {
+						if (error) {
+							console.log(error)
+						} else {
+							result.header('Content-Type', 'text/csv')
+							return result.sendFile(filename)
+						}
+					})
+				}
+			})
+		}
+    })
     db.all('SELECT * FROM Samples', [], (error, rows) => {
         if (error) {
 			console.log(error)
