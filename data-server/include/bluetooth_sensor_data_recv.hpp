@@ -30,16 +30,22 @@ private:
 				std::vector<PHMS_Bluetooth::Packet> v = s.get_all();
 				received_samples += v.size();
 
+				auto time = std::chrono::high_resolution_clock::now();
+				long t = (long) std::chrono::time_point_cast<std::chrono::milliseconds>(time).time_since_epoch().count();
+
 				// for each bluetooth packet received, get the samples
 				for (auto i : v) {
 					std::vector<Sample> samples = sample_buffer_from_bt_packet(i);
 
 					// for each sample, call all of the callback functions
 					for (auto s : samples)
+					{
+						s.timestamp = t;
 						// Pass a pointer to the latest data to all of the callback functions.
 						for (callback = this->callbacks.begin(); callback != this->callbacks.end(); callback++) {
 							(*callback)(&s);
 						}
+					}
 				}
 			}
 		}
