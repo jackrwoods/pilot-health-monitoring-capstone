@@ -45,6 +45,7 @@ public:
 	 */
 	void send_pilot_state(uint8_t state)
 	{
+		std::cout << "sending pilot state: " << (int)state << std::endl;
 		c.push(&state, 1);
 	}
 };

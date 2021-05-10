@@ -32,6 +32,9 @@ int main()
 	// This job runs indefinitely.
 	// It inserts samples into the sqlite database in batches.
 	ds->register_reader_thread(); // How data_store tracks which samples have not been read yet
+
+	// fake pilot state to send
+	int state {0};
 	while (true)
 	{
 		// Flush buffered samples to db twice per second
@@ -40,6 +43,7 @@ int main()
 		if(vec.size() > 0)
 			db->insert_samples(vec);
 		// printf("flushed to database\n");
+		datasource.send_pilot_state(state++ % 2);
 	}
 
 	return 0;
