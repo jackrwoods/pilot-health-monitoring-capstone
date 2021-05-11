@@ -7,6 +7,7 @@
 #include <algorithm>
 
 #include "./bluetooth/bluetooth_con.hpp"
+#include "./datasource.hpp"
 
 // how to identify a field within the bluetooth packet
 #define BYTE_IDENTIFIER_timestamp 0x01
