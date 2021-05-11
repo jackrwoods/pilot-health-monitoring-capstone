@@ -13,6 +13,7 @@
 #include <random>
 #include <vector>
 
+#include "./bt_comm.hpp"
 #include "./bt_client.hpp"
 #include "./bt_server.hpp"
 #include "./bt_packet.hpp"

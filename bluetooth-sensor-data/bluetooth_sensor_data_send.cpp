@@ -23,16 +23,17 @@ int main(int argc, char *argv[])
     }
 
     // open bluetooth connection
-    PHMS_Bluetooth::Client c;
+    // PHMS_Bluetooth::Client c;
+    PHMS_Bluetooth::Communicator c;
     int con_stat = c.open_con(std::string(argv[1]));
     if (con_stat == -1)
     {
         std::cerr << "Error opening connection to bluetooth device at " << argv[1] << '.' << std::endl;
-        // return 1;
+        return 1;
     }
 
     // spawn bluetooth communication in a new thread
-    std::thread bt_thread(&PHMS_Bluetooth::Client::run, &c);
+    c.run();
 
     // read data from input file
     std::vector<Sample> samples = sample_buffer_from_file(argv[2]);
@@ -60,9 +61,9 @@ int main(int argc, char *argv[])
     }
 
     std::cout << "Sent " << total_samples << " samples.\n";
+
     // end bluetooth connection and thread
     c.quit();
-    bt_thread.join();
 
     return 0;
 }

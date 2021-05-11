@@ -27,6 +27,8 @@ namespace PHMS_Bluetooth
 
         bool is_quit{false};
 
+        std::string connected_address;
+
         // bluetooth variables
 
         bool connection_created{false};
@@ -45,12 +47,15 @@ namespace PHMS_Bluetooth
         int open_con(std::string addr);
         int close_con();
 
+        std::string get_connected_address();
+
         void push(const Packet &p);
         void push(const void* src, size_t len);
 
         void quit();
 
         void run();
+
     };
 } // namespace PHMS_Bluetooth
 
@@ -97,7 +102,10 @@ int PHMS_Bluetooth::Client::open_con(std::string addr)
     status = connect(s, (struct sockaddr *)&socket_addr, sizeof(sockaddr_l2));
 
     if (status == 0)
+    {
         connection_created = true;
+        connected_address = addr;
+    }
 
     return status;
 }
@@ -167,4 +175,9 @@ void PHMS_Bluetooth::Client::run()
             }
         }
     }
+}
+
+std::string PHMS_Bluetooth::Client::get_connected_address()
+{
+    return connected_address;
 }
