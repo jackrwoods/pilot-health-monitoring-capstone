@@ -38,7 +38,7 @@ int main(int argc, char *argv[])
     std::vector<Sample> samples = sample_buffer_from_file(argv[2]);
 
     int total_samples{0};
-
+    int packets_sent{0};
     while (samples.size() > 0)
     {
         std::vector<Sample> this_round;
@@ -55,7 +55,7 @@ int main(int argc, char *argv[])
         // calculate approximate sleep for desired sample rate with packet size
         usleep(1000000 / (SAMPLE_RATE / PACKET_SIZE));
         c.push(packet_from_Sample_buffer(this_round));
-        std::cout << "Pushing " << this_round.size() << " samples\n";
+        std::cout << "(" << packets_sent++ << ") Pushing " << this_round.size() << " samples\n";
         total_samples += this_round.size();
     }
 
