@@ -31,6 +31,8 @@ namespace PHMS_Bluetooth
 
         bool connection_created{false};
 
+        std::string connected_address;
+
         // bluetooth variables
 
         struct sockaddr_l2 loc_addr = {0};
@@ -47,6 +49,8 @@ namespace PHMS_Bluetooth
 
         int open_con();
         int close_con();
+
+        std::string get_connected_address();
 
         size_t available();
         std::vector<Packet> get_all();
@@ -98,6 +102,7 @@ int PHMS_Bluetooth::Server::open_con()
         char buffer[256]{0};
         ba2str(&rem_addr.l2_bdaddr, reinterpret_cast<char *>(buffer));
         fprintf(stderr, "accepted connection from %s\n", buffer);
+        connected_address = s;
     }
 
     return client;
@@ -112,7 +117,13 @@ int PHMS_Bluetooth::Server::close_con()
     close(client);
     close(s);
     connection_created = false;
+    connected_address.clear();
     return 0;
+}
+
+std::string PHMS_Bluetooth::Server::get_connected_address()
+{
+    return connected_address;
 }
 
 /**
