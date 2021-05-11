@@ -13,9 +13,10 @@ namespace PHMS_Bluetooth
     {
     private:
         std::chrono::system_clock::time_point timestamp;
-        size_t length{0};
+        // size_t length{0};
         // std::unique_ptr<uint8_t> data;
-        uint8_t *data{nullptr};
+        // uint8_t *data{nullptr};
+        std::vector<uint8_t> data;
 
         Packet();
 
@@ -45,11 +46,8 @@ PHMS_Bluetooth::Packet::Packet()
  */
 PHMS_Bluetooth::Packet::Packet(const PHMS_Bluetooth::Packet &p)
 {
-    length = p.length;
     timestamp = p.timestamp;
-
-    data = new uint8_t[length];
-    memcpy(data, p.data, length);
+    data = p.data;
 }
 
 /**
@@ -58,11 +56,8 @@ PHMS_Bluetooth::Packet::Packet(const PHMS_Bluetooth::Packet &p)
  */
 PHMS_Bluetooth::Packet::Packet(PHMS_Bluetooth::Packet &&p)
 {
-    length = p.length;
     timestamp = p.timestamp;
-    data = p.data;
-
-    p.data = nullptr;
+    data = std::move(p.data);
 }
 
 /**
@@ -73,15 +68,12 @@ PHMS_Bluetooth::Packet::Packet(PHMS_Bluetooth::Packet &&p)
 PHMS_Bluetooth::Packet::Packet(size_t len, const void *src)
 {
     timestamp = std::chrono::system_clock::now();
-    data = new uint8_t[len];
-    length = len;
-    memcpy(data, src, len);
+    data = std::vector<uint8_t>(reinterpret_cast<const uint8_t *>(src),reinterpret_cast<const uint8_t *>(src) + len);
 }
 
+// default destructor
 PHMS_Bluetooth::Packet::~Packet()
 {
-    if (data != nullptr)
-        delete[] data;
 }
 
 /**
@@ -89,7 +81,7 @@ PHMS_Bluetooth::Packet::~Packet()
  */
 size_t PHMS_Bluetooth::Packet::size()
 {
-    return length;
+    return data.size();
 }
 
 /**
@@ -105,7 +97,7 @@ std::chrono::system_clock::time_point PHMS_Bluetooth::Packet::time()
  */
 const uint8_t *PHMS_Bluetooth::Packet::get()
 {
-    return data;
+    return &data.front();
 }
 
 /**
@@ -115,15 +107,15 @@ void PHMS_Bluetooth::Packet::print()
 {
     printf("== PACKET ============================\n");
     printf("= timestamp: %12u            =\n", timestamp.time_since_epoch());
-    printf("= length: %4i                       =\n", length);
+    printf("= length: %4i                       =\n", size());
     printf("======================================");
-    for (int i = 0; i < (length / 8) + 1; i++)
+    for (int i = 0; i < (size() / 8) + 1; i++)
     {
         printf("\n= ");
         // hex
         for (int j = 0; j < 8; j++)
         {
-            if ((i * 8) + j < length)
+            if ((i * 8) + j < size())
                 printf("%.2x ", data[(i * 8) + j]);
             else
                 printf("   ");
@@ -134,7 +126,7 @@ void PHMS_Bluetooth::Packet::print()
         // char
         for (int j = 0; j < 8; j++)
         {
-            if ((i * 8) + j < length)
+            if ((i * 8) + j < size())
                 (data[(i * 8) + j] >= 33 && data[(i * 8) + j] <= 126) ? printf("%c", data[(i * 8) + j]) : printf(".");
             else
                 printf(" ");
