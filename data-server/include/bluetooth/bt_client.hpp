@@ -164,8 +164,10 @@ void PHMS_Bluetooth::Client::run()
         if (pkt_queue.size() > 0)
         {
             // get the front packet from the queue
+            pkt_guard.lock();
             Packet p(pkt_queue.front());
             pkt_queue.pop();
+            pkt_guard.unlock();
 
             // attempt to send the packet's data over bluetooth
             int status = write(s, p.get(), p.size());
