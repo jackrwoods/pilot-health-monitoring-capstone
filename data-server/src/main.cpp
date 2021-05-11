@@ -10,14 +10,20 @@
 #include "ds_data_store.hpp"
 #include "sql_con.hpp"
 
-int main()
+int main(int argc, char *argv[])
 {
+	// argument checking
+	if(argc != 2)
+	{
+		std::cout << "usage : " << argv[0] << " [Hardware device Bluetooth address]\n";
+		return 1;
+	}
+
 	std::cout << "Starting up...\n";
 	BluetoothReceiver datasource;
 
-	// set the bluetooth address before initializing the connection
-	// TODO: get this from command line argument?
-	datasource.set_bt_address("B8:27:EB:49:35:BC");
+	// set the bluetooth address before initializing the connection - should be passed by command line argument
+	datasource.set_bt_address(argv[1]);
 
 	std::cout << "Registering data store callback...\n";
 	Data_Store<Sample> *ds = new Data_Store<Sample>(&datasource);
@@ -36,13 +42,13 @@ int main()
 	ds->register_reader_thread(); // How data_store tracks which samples have not been read yet
 
 	// fake pilot state to send
-	int state {0};
+	int state{0};
 	while (true)
 	{
 		// Flush buffered samples to db twice per second
 		std::this_thread::sleep_for(std::chrono::milliseconds(500));
 		auto vec = ds->vec();
-		if(vec.size() > 0)
+		if (vec.size() > 0)
 			db->insert_samples(vec);
 		// printf("flushed to database\n");
 		datasource.send_pilot_state(state++ % 2);
