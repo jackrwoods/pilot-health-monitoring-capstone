@@ -76,7 +76,7 @@ PHMS_Bluetooth::Server::~Server()
  */
 int PHMS_Bluetooth::Server::open_con()
 {
-    if(connection_created == true)
+    if (connection_created == true)
         return -1;
 
     // allocate socket
@@ -157,8 +157,22 @@ void PHMS_Bluetooth::Server::run()
     {
         memset(buffer, 0, MAX_PKT_SIZE);
 
-        // read data from the client
-        bytes_read = read(client, buffer, MAX_PKT_SIZE);
+        // used for a timeout - https://stackoverflow.com/questions/2917881/how-to-implement-a-timeout-in-read-function-call
+        fd_set set;
+        FD_ZERO(&set);        // clear the set
+        FD_SET(client, &set); // add our file descriptor to the set
+
+        bytes_read = 0;
+        struct timeval timeout;
+        timeout.tv_sec = 0;
+        timeout.tv_usec = 10000;
+
+        int rv = select(client + 1, &set, NULL, NULL, &timeout);
+
+        // read data from the client, -1: error, 0: timeout
+        if (rv != -1 && rv != 0)
+            bytes_read = read(client, buffer, MAX_PKT_SIZE);
+
         if (bytes_read > 0)
         {
             // printf("received [%s]\n", buffer);
