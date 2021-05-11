@@ -13,60 +13,39 @@ private:
 	bool quit_receive_thread{false};
 	int received_samples{0};
 
-	std::thread collector;
+	PHMS_Bluetooth::Communicator c;
+	std::string bluetooth_address;
 
-	PHMS_Bluetooth::Client c;
-	PHMS_Bluetooth::Server s;
+	bool connection_initialized{false};
 
 	void run_receive();
 
 public:
-	BluetoothReceiver()
-	{
-		std::cout << "Bluetooth Sample Recieve ('hcitool dev' in terminal returns the bluetooth address of this device)" << std::endl;
-	}
+	BluetoothReceiver();
+	~BluetoothReceiver();
 
-	void initializeConnection()
-	{
-		// run a thread that sits and receives packets until the application quits
-		collector = std::thread(&BluetoothReceiver::run_receive, this);
-		collector.detach();
-	}
+	void initializeConnection();
 
-	~BluetoothReceiver()
-	{
-		std::cout << "Killing bluetooth thread...\n";
-		quit_receive_thread = true;
-	};
+	void send_pilot_state(uint8_t state);
 
-	/**
-	 * send_pilot_state: Send a stressed or unstressed pilot state to the connected collection device
-	 * @param state: 1 if the pilot is stressed, 0 if the pilot is unstressed
-	 */
-	void send_pilot_state(uint8_t state)
-	{
-		std::cout << "sending pilot state: " << (int)state << std::endl;
-		c.push(&state, 1);
-	}
+	void set_bt_address(const std::string &s);
 };
 
 void BluetoothReceiver::run_receive()
 {
-	// open server connection, connects to any device that requests connection
-	s.open_con();
-	std::thread bt_thread(&PHMS_Bluetooth::Server::run, &s);
-
-	// start a client connection to the connected bluetooth device for sending pilot states
-	c.open_con(s.get_connected_address());
-	std::thread client_thread(&PHMS_Bluetooth::Client::run, &c);
+	// crash if no connection was made
+	if (!connection_initialized)
+	{
+		std::cerr << "(BluetoothReceiver) Connection uninitialized at call to run_receive" << std::endl;
+		exit(1);
+	}
 
 	while (!quit_receive_thread)
 	{
-
-		if (s.available())
+		if (c.available())
 		{
 			// grab all available bluetooth packets
-			std::vector<PHMS_Bluetooth::Packet> v = s.get_all();
+			std::vector<PHMS_Bluetooth::Packet> v = c.get_all();
 			received_samples += v.size();
 
 			long time = (long)std::chrono::time_point_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now()).time_since_epoch().count();
@@ -81,15 +60,55 @@ void BluetoothReceiver::run_receive()
 				{
 					s.timestamp = time;
 					// Pass a pointer to the latest data to all of the callback functions.
-					for(auto c : callbacks)
-						c(&s);
+					for (auto clb : callbacks)
+						clb(&s);
 				}
 			}
 		}
 	}
-	s.quit();
-	bt_thread.join();
+}
 
+BluetoothReceiver::BluetoothReceiver()
+{
+	std::cout << "Bluetooth Sample Reciever ('hcitool dev' in terminal returns the bluetooth address of this device)" << std::endl;
+}
+
+BluetoothReceiver::~BluetoothReceiver()
+{
+	std::cout << "Killing bluetooth thread...\n";
+	quit_receive_thread = true;
 	c.quit();
-	client_thread.join();
+}
+
+void BluetoothReceiver::initializeConnection()
+{
+	if(bluetooth_address.empty())
+	{
+		std::cerr << "(BluetoothReceiver) call to InitializeConnection with no bluetooth address set" << std::endl;
+		exit(1);
+	}
+
+	// run a thread that sits and receives packets until the application quits
+	if(c.open_con(bluetooth_address) == 0)
+	{
+		connection_initialized = true;
+		c.run();
+	}
+	else
+		std::cerr << "(BluetoothReceiver) an error occurred opening connection to " << bluetooth_address << std::endl;
+}
+
+/**
+ * send_pilot_state: Send a stressed or unstressed pilot state to the connected collection device
+ * @param state: 1 if the pilot is stressed, 0 if the pilot is unstressed
+ */
+void BluetoothReceiver::send_pilot_state(uint8_t state)
+{
+	printf("sending pilot state: %s\n", (state ? "stressed" : "unstressed"));
+	c.push(&state, 1);
+}
+
+void BluetoothReceiver::set_bt_address(const std::string &s)
+{
+	bluetooth_address = s;
 }

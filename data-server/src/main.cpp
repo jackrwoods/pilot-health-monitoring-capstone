@@ -15,7 +15,9 @@ int main()
 	std::cout << "Starting up...\n";
 	BluetoothReceiver datasource;
 
-	datasource.initializeConnection();
+	// set the bluetooth address before initializing the connection
+	// TODO: get this from command line argument?
+	datasource.set_bt_address("B8:27:EB:49:35:BC");
 
 	std::cout << "Registering data store callback...\n";
 	Data_Store<Sample> *ds = new Data_Store<Sample>(&datasource);
