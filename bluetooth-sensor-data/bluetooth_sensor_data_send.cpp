@@ -23,7 +23,6 @@ int main(int argc, char *argv[])
     }
 
     // open bluetooth connection
-    // PHMS_Bluetooth::Client c;
     PHMS_Bluetooth::Communicator c;
     int con_stat = c.open_con(std::string(argv[1]), 5);
     if (con_stat != 0)
@@ -40,11 +39,7 @@ int main(int argc, char *argv[])
 
     int total_samples{0};
 
-    int limit{8};
-
-    // temporary to limit the number of packets sent
-    // while (samples.size() > 0)
-    while (limit--)
+    while (samples.size() > 0)
     {
         std::vector<Sample> this_round;
         if (samples.size() > PACKET_SIZE)
@@ -68,16 +63,11 @@ int main(int argc, char *argv[])
     std::cout << "Sample send finished. Receive thread may still be receiving samples. Enter key to quit...\n";
 
     std::cin.getline(nullptr, 0);
+
     // end bluetooth connection and thread
     c.quit();
 
-    std::vector<PHMS_Bluetooth::Packet> packets = c.get_all();
-    int sample_count {0};
-    for(auto i : packets)
-        sample_count += sample_buffer_from_bt_packet(i).size();
-
-
-    std::cout << "Received " << sample_count << " samples.\n";
+    std::cout << "Received " << c.available() << " packets.\n";
 
     return 0;
 }
