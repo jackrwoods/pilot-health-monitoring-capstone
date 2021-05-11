@@ -89,13 +89,16 @@ void BluetoothReceiver::initializeConnection()
 	}
 
 	// run a thread that sits and receives packets until the application quits
-	if(c.open_con(bluetooth_address) == 0)
+	if(c.open_con(bluetooth_address, 5) == 0)
 	{
 		connection_initialized = true;
 		c.run();
 	}
 	else
+	{
 		std::cerr << "(BluetoothReceiver) an error occurred opening connection to " << bluetooth_address << std::endl;
+		exit(1);
+	}
 }
 
 /**

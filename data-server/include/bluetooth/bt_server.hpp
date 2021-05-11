@@ -38,7 +38,7 @@ namespace PHMS_Bluetooth
         struct sockaddr_l2 loc_addr = {0};
         struct sockaddr_l2 rem_addr = {0};
         int s{0};
-        int client{0};
+        int client{-1};
         int bytes_read{0};
         socklen_t opt{sizeof(sockaddr_l2)};
 
@@ -94,6 +94,19 @@ int PHMS_Bluetooth::Server::open_con()
     // put socket into listening mode
     listen(s, 1);
 
+    // timeout
+    struct timeval tv;
+    fd_set readfds;
+
+    tv.tv_sec = 1;
+    tv.tv_usec = 0;
+
+    FD_ZERO(&readfds);
+    FD_SET(s, &readfds);
+
+    if(select(s + 1, &readfds, NULL, NULL, &tv) == 0)
+        return -1;
+        
     // accept one connection
     client = accept(s, (struct sockaddr *)&rem_addr, &opt);
     if (client != -1)
@@ -104,8 +117,7 @@ int PHMS_Bluetooth::Server::open_con()
         fprintf(stderr, "accepted connection from %s\n", buffer);
         connected_address = s;
     }
-
-    return client;
+    return (client == -1) ? -1 : 0;
 }
 
 /**

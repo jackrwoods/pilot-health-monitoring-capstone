@@ -46,11 +46,10 @@ int PHMS_Bluetooth::Communicator::open_con(std::string addr, int tries = 1)
 {
 
     // open the server connection creation method in a temporary thread to accept a connection first
-    // wait 0.5 seconds on failure for (tries) times
+    // run tries amount of times, a timeout is implemented in s.open_con()
     int s_tries = tries;
     std::thread server_connect([&]() {
-        while (s.open_con() && s_tries--)
-            usleep(500000);
+        while (s.open_con() && s_tries--) {}
     });
 
     int con_status{1};
