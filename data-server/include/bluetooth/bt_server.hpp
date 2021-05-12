@@ -114,8 +114,8 @@ int PHMS_Bluetooth::Server::open_con()
         connection_created = true;
         char buffer[256]{0};
         ba2str(&rem_addr.l2_bdaddr, reinterpret_cast<char *>(buffer));
-        fprintf(stderr, "accepted connection from %s\n", buffer);
-        connected_address = s;
+        fprintf(stderr, "(Bluetooth Server) accepted connection from %s\n", buffer);
+        connected_address = buffer;
     }
     return (client == -1) ? -1 : 0;
 }

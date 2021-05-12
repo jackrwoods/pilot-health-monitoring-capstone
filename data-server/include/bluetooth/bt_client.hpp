@@ -105,6 +105,7 @@ int PHMS_Bluetooth::Client::open_con(std::string addr)
     {
         connection_created = true;
         connected_address = addr;
+        fprintf(stderr, "(Bluetooth Client) connected to %s\n", connected_address.c_str());
     }
 
     return status;
