@@ -16,6 +16,8 @@ private:
 	PHMS_Bluetooth::Communicator c;
 	std::string bluetooth_address;
 
+	std::thread callback_thread;
+
 	bool connection_initialized{false};
 
 	void run_receive();
@@ -78,18 +80,19 @@ BluetoothReceiver::~BluetoothReceiver()
 	std::cout << "Killing bluetooth thread...\n";
 	quit_receive_thread = true;
 	c.quit();
+	callback_thread.join();
 }
 
 void BluetoothReceiver::initializeConnection()
 {
-	if(bluetooth_address.empty())
+	if (bluetooth_address.empty())
 	{
 		std::cerr << "(BluetoothReceiver) call to InitializeConnection with no bluetooth address set" << std::endl;
 		exit(1);
 	}
 
 	// run a thread that sits and receives packets until the application quits
-	if(c.open_con(bluetooth_address, 5) == 0)
+	if (c.open_con(bluetooth_address, 5) == 0)
 	{
 		connection_initialized = true;
 		c.run();
@@ -99,6 +102,8 @@ void BluetoothReceiver::initializeConnection()
 		std::cerr << "(BluetoothReceiver) an error occurred opening connection to " << bluetooth_address << std::endl;
 		exit(1);
 	}
+
+	callback_thread = std::thread(&BluetoothReceiver::run_receive, this);
 }
 
 /**
