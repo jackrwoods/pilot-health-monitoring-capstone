@@ -98,7 +98,7 @@ int PHMS_Bluetooth::Server::open_con()
     struct timeval tv;
     fd_set readfds;
 
-    tv.tv_sec = 1;
+    tv.tv_sec = 5;
     tv.tv_usec = 0;
 
     FD_ZERO(&readfds);
