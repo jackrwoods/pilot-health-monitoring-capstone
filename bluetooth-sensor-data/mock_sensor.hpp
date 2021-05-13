@@ -99,6 +99,10 @@ std::vector<Sample> Inner_Sensor::get(int amount)
         ret = std::vector<Sample>(stressed_buffer.begin() + stressed_position, stressed_buffer.begin() + stressed_position + amount);
     else
         ret = std::vector<Sample>(unstressed_buffer.begin() + unstressed_position, unstressed_buffer.begin() + unstressed_position + amount);
+    
+    for(auto &r : ret)
+        r.spo2 = po2_sensor.get();
+        
     return ret;
 }
 
