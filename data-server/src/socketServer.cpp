@@ -23,11 +23,11 @@ void sendDataToAllClients(struct Sample *data)
 	std::string json = "{\"timestamp\": ";
 	json += std::to_string(data->timestamp);
 	json += ",\"temperature\": ";
-	json += std::to_string(data->temperature.value);
+	json += std::to_string(0);
 	json += ", \"HR\": ";
-	json += std::to_string(data->bpm.value);
+	json += std::to_string(data->bpm);
 	json += ", \"SpO2\": ";
-	json += std::to_string(data->spo2.value);
+	json += std::to_string(data->spo2);
 	json += ", \"sentTimestamp\": ";
 	json += std::to_string(std::chrono::time_point_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now()).time_since_epoch().count());
 	json += "}";

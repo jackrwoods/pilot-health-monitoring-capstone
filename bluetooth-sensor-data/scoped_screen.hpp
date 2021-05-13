@@ -17,6 +17,7 @@ Scoped_Screen::Scoped_Screen()
     keypad(stdscr, TRUE);
     curs_set(0);
     refresh();
+    timeout(75);
 }
 
 Scoped_Screen::~Scoped_Screen()

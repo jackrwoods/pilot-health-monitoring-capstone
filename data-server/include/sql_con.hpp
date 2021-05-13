@@ -96,7 +96,7 @@ int SQL_Connection::insert_samples(const std::vector<Sample> &v)
 	std::string cmd_insert = "INSERT INTO Samples(ID, Timestamp, R_LED, IR_LED, Temperature, BPM, SpO2, PilotState) VALUES ";
 	for (auto vi = v.begin(); vi != v.end(); vi++)
 	{
-		cmd_insert += "(NULL, " + std::to_string(vi->timestamp) + ',' + std::to_string(vi->redLED.value) + ',' + std::to_string(vi->irLED.value) + ',' + std::to_string(vi->temperature.value) + ',' + std::to_string(vi->bpm.value) + ',' + std::to_string(vi->spo2.value) + ',' + std::to_string(vi->pilotState.value) + ")";
+		cmd_insert += "(NULL, " + std::to_string(vi->timestamp) + ',' + std::to_string(vi->redLED) + ',' + std::to_string(vi->irLED) + ',' + std::to_string(0) + ',' + std::to_string(vi->bpm) + ',' + std::to_string(vi->spo2) + ',' + std::to_string(vi->pilot_state) + ")";
 
 
 		if (vi + 1 != v.end())
@@ -117,12 +117,12 @@ int SQL_Connection::insert_sample(Sample* s)
 	sqlite3_bind_int64(this->insertSample, 1, s->timestamp);
 
 	// Bind everything else
-	sqlite3_bind_double(this->insertSample, 2, s->redLED.value);
-	sqlite3_bind_double(this->insertSample, 3, s->irLED.value);
-	sqlite3_bind_double(this->insertSample, 4, s->temperature.value);
-	sqlite3_bind_double(this->insertSample, 5, s->bpm.value);
-	sqlite3_bind_double(this->insertSample, 6, s->spo2.value);
-	sqlite3_bind_int(this->insertSample, 7, (int) s->pilotState.value);
+	sqlite3_bind_double(this->insertSample, 2, s->redLED);
+	sqlite3_bind_double(this->insertSample, 3, s->irLED);
+	sqlite3_bind_double(this->insertSample, 4, 0); // this was temperature
+	sqlite3_bind_double(this->insertSample, 5, s->bpm);
+	sqlite3_bind_double(this->insertSample, 6, s->spo2);
+	sqlite3_bind_int(this->insertSample, 7, s->pilot_state);
 
 	// Execute the query
 	int res = sqlite3_step(this->insertSample);

@@ -55,7 +55,11 @@ void BluetoothReceiver::run_receive()
 			// for each bluetooth packet received, get the samples
 			for (auto i : v)
 			{
-				std::vector<Sample> samples = sample_buffer_from_bt_packet(i);
+				auto smp = sample_buffer_from_bt_packet(i);
+				std::vector<Sample> samples = smp.samples;
+				int source = smp.src;
+
+				// TODO: mitigate sensor malfunction here
 
 				// for each sample, call all of the callback functions
 				for (auto s : samples)
