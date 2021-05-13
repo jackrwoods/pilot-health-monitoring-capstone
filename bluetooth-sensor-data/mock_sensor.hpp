@@ -151,6 +151,9 @@ std::vector<Sample> Mock_Sensor::get(int amount)
 
             if(rand() & 100 >= SENSOR_ERROR_PROBABILITY)
                 v->redLED += (rand() % SENSOR_ERROR) - (SENSOR_ERROR / 2);
+
+            if(rand() & 100 >= SENSOR_ERROR_PROBABILITY)
+                v->spo2 += (rand() % SENSOR_ERROR) - (SENSOR_ERROR / 2);
         }
     }
     else
@@ -158,8 +161,9 @@ std::vector<Sample> Mock_Sensor::get(int amount)
         // generate invalid values
         for (auto v = ret.begin(); v != ret.end(); v++)
         {
-            v->irLED = rand() % UINT16_MAX;
-            v->redLED = rand() % UINT16_MAX;
+            v->irLED = rand() % (UINT16_MAX - (22000 - 11800)) - (UINT16_MAX - 22000);
+            v->redLED = rand() % (UINT16_MAX - (23000 - 11900)) - (UINT16_MAX - 23000);
+            v->spo2 =  rand() % (UINT16_MAX - (15000 - 13000)) - (UINT16_MAX - 15000);
         }
     }
     return ret;
