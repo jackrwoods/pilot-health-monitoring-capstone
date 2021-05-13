@@ -44,6 +44,7 @@ Sample from_string(std::string csv_string)
     ret.irLED = std::stoi(sections[0]);
     ret.redLED = std::stoi(sections[1]);
     ret.spo2 = std::stoi(sections[2]);
+    ret.bpm = std::stoi(sections[3]);
 
     return ret;
 }
@@ -102,7 +103,8 @@ Smp_with_Source sample_buffer_from_bt_packet(PHMS_Bluetooth::Packet p)
         s.irLED = combine(bytes[cur_byte], bytes[cur_byte + 1]);
         s.redLED = combine(bytes[cur_byte + 2], bytes[cur_byte + 3]);
         s.spo2 = combine(bytes[cur_byte + 4], bytes[cur_byte + 5]);
-        cur_byte += 6;
+        s.bpm = combine(bytes[cur_byte + 6], bytes[cur_byte  + 7]);
+        cur_byte += 8;
 
         // time received and 1/64 of a second for each sample
         s.timestamp = time + (sample_count * time_interval);
@@ -143,6 +145,7 @@ PHMS_Bluetooth::Packet packet_from_Sample_buffer(uint8_t source_sensor, const st
         write_to_bytes(s.irLED, bytes);
         write_to_bytes(s.redLED, bytes);
         write_to_bytes(s.spo2, bytes);
+        write_to_bytes(s.bpm, bytes);
     }
 
     return PHMS_Bluetooth::Packet(bytes.size(), &bytes.front());
