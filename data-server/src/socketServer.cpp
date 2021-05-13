@@ -29,7 +29,7 @@ void sendDataToAllClients(struct Sample *data)
 	json += ", \"SpO2\": ";
 	json += std::to_string(data->spo2);
 	json += ", \"sentTimestamp\": ";
-	json += std::to_string(std::chrono::time_point_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now()).time_since_epoch().count());
+	json += std::to_string((unsigned long)std::chrono::time_point_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now()).time_since_epoch().count());
 	json += "}";
 
 	// Send the latest datapoint to all clients

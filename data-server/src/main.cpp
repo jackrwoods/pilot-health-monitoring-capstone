@@ -51,7 +51,6 @@ int main(int argc, char *argv[])
 		if (vec.size() > 0)
 			db->insert_samples(vec);
 		// printf("flushed to database\n");
-		datasource.send_pilot_state(state++ % 2);
 	}
 
 	return 0;
