@@ -190,8 +190,6 @@ void BluetoothReceiver::run_receive()
 
 						// ==================================================================================
 
-						s.bpm += rand() % 3;
-						// s.bpm -= rand() % 3;
 
 						s.timestamp = time;
 						// Pass a pointer to the latest data to all of the callback functions.
