@@ -9,6 +9,7 @@
 #include "socketServer.cpp"
 #include "ds_data_store.hpp"
 #include "sql_con.hpp"
+#include "classifier.cpp"
 
 int main(int argc, char *argv[])
 {
@@ -37,12 +38,16 @@ int main(int argc, char *argv[])
 	std::cout << "Reading from datasource. \n";
 	datasource.initializeConnection();
 
+	// start classifier
+	std::cout << "Starting data classifier thread\n";
+	Classifier classifier(datasource, *db);
+	std::thread classifier_thread(&Classifier::run, &classifier);
+
 	// This job runs indefinitely.
 	// It inserts samples into the sqlite database in batches.
 	ds->register_reader_thread(); // How data_store tracks which samples have not been read yet
 
 	// fake pilot state to send
-	int state{0};
 	while (true)
 	{
 		// Flush buffered samples to db twice per second

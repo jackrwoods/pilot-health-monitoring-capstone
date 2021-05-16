@@ -24,6 +24,8 @@ private:
 
 	void run_receive();
 
+	int pilot_state{0};
+
 public:
 	BluetoothReceiver();
 	~BluetoothReceiver();
@@ -184,12 +186,9 @@ void BluetoothReceiver::run_receive()
 							s.spo2 = spO2LUT[index];
 						last_spo2 = s.spo2;
 
-						// TODO: DETERMINE PILOT STATE here =================================================
+						// insert last received pilot state value
 						if (s.bpm > 70)
-							s.pilot_state = 1;
-
-						// ==================================================================================
-
+							s.pilot_state = pilot_state;
 
 						s.timestamp = time;
 						// Pass a pointer to the latest data to all of the callback functions.
@@ -245,7 +244,8 @@ void BluetoothReceiver::initializeConnection()
 void BluetoothReceiver::send_pilot_state(uint8_t state)
 {
 	printf("sending pilot state: %s\n", (state ? "stressed" : "unstressed"));
-	c.push(&state, 1);
+	pilot_state = state;
+	c.push(&pilot_state, 1);
 }
 
 void BluetoothReceiver::set_bt_address(const std::string &s)
