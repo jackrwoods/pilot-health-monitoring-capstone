@@ -12,13 +12,34 @@ app.listen(port, () => {
 const json2csv = require('json2csv')
 const parser = new json2csv.Parser()
 const sqlite3 = require('sqlite3').verbose()
-const dbLocation = process.env.DB != null ? process.env.DB : '/home/pi/pilot-health-monitoring-capstone/data-server/data/samples_database.db'
+const dbLocation = process.env.DB != null ? process.env.DB : '../data-server/data/samples_database.db'
 let db = new sqlite3.Database(dbLocation, sqlite3.OPEN_READONLY, (error) => {
 	console.log('Connecting to ' + dbLocation)
 	if (error) console.log(error)
 	else console.log('Connected to DB.')
 })
 app.get('/api/csv', (request, result) => {
+	db.run('.mode csv', (error, rows) => {
+        if (error) {
+			console.log(error)
+		} else {
+			const filename = 'samples-' + new Date().getTime() + '.csv';
+			db.run('.output ' + filename, (error) => {
+				if (error) {
+					console.log(error)
+				} else {
+					db.run('SELECT * FROM Samples', (error) => {
+						if (error) {
+							console.log(error)
+						} else {
+							result.header('Content-Type', 'text/csv')
+							return result.sendFile(filename)
+						}
+					})
+				}
+			})
+		}
+    })
     db.all('SELECT * FROM Samples', [], (error, rows) => {
         if (error) {
 			console.log(error)

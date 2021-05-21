@@ -15,11 +15,10 @@ class Looping_Buffer
 {
 private:
 	TYPE buffer[LENGTH];
-	std::mutex mut; // control access to the buffer
+	std::mutex mut;	   // control access to the buffer
 	uint32_t count{0}; // count the number of received samples
 
 public:
-
 	int copy_from(const TYPE *src, size_t len);
 	int copy_to(TYPE *dest, int from, int to);
 	Looping_Buffer();
@@ -194,10 +193,10 @@ int Looping_Buffer<TYPE, LENGTH>::copy_to(TYPE *dest, int from, int to)
 {
 	// calculate the length to copy
 	int len = to - from;
-	if(len <= 0)
+	if (len <= 0)
 		return 0;
 
-	if(to > count || from > count)
+	if (to > count || from > count)
 		return 0;
 
 	int items_copied{0};
@@ -206,11 +205,11 @@ int Looping_Buffer<TYPE, LENGTH>::copy_to(TYPE *dest, int from, int to)
 		return 0;
 
 	// detect when copy needs to be done twice - when data loops
-	if (len + count % LENGTH > LENGTH)
+	if (len + (from % LENGTH) > LENGTH)
 	{
 		// split into two memcpy operations
 		// define section beginnings
-		TYPE *sec_0 = buffer + count % LENGTH;
+		TYPE *sec_0 = buffer + (from % LENGTH);
 		TYPE *sec_1 = buffer;
 
 		// define section lengths
@@ -237,6 +236,8 @@ int Looping_Buffer<TYPE, LENGTH>::copy_to(TYPE *dest, int from, int to)
  * samples_recv: Get total number of samples received.
  * @returns Total number of samples received.
  */
-template<class TYPE, int LENGTH> int Looping_Buffer<TYPE, LENGTH>::samples_recv() {
+template <class TYPE, int LENGTH>
+int Looping_Buffer<TYPE, LENGTH>::samples_recv()
+{
 	return count;
 }

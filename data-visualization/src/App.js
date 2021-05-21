@@ -17,8 +17,8 @@ class App extends Component {
     super(props);
 
     // Establish ping and data connections
-    this.pingClient = new W3CWebSocket('ws://10.3.141.1:8080/ping');
-    this.wsClient = new W3CWebSocket('ws://10.3.141.1:8080/data');
+      this.pingClient = new W3CWebSocket('ws://' + window.location.hostname + ':8080/ping');
+      this.wsClient = new W3CWebSocket('ws://' + window.location.hostname + ':8080/data');
 
     this.state = {
       connection: {
@@ -37,6 +37,7 @@ class App extends Component {
         connectionPingMillis: [], // Array of ping observations
         avgConnectionPing: 0, // The average ping
         pingEpoch: Date.now(), // Temporarily stores the "sent" time when calculating round-trip time
+        dataServerPing: 0,
       }
     }
   }
@@ -74,6 +75,7 @@ class App extends Component {
           state.data.rawData.shift();
 
         }
+        state.ping.dataServerPing = data.sentTimestamp - data.timestamp;
       }));
     };
 
@@ -104,7 +106,7 @@ class App extends Component {
           <WarningPane><Trend data={this.state.data} /></WarningPane>
         </Row>
         <Row>
-          <WarningPane><ConnectionStatus connection={this.state.connection} ping={this.state.ping.avgConnectionPing} /></WarningPane>
+          <WarningPane><ConnectionStatus connection={this.state.connection} ping={this.state.ping.avgConnectionPing + this.state.ping.dataServerPing} /></WarningPane>
         </Row>
 
         {/* Graphs and data visualization */}

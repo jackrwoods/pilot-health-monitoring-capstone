@@ -47,11 +47,11 @@ class Max30100: public Datasource {
 
 				// Create new sample struct
 				struct Sample* data = new struct Sample();
-				data->timestamp = std::chrono::time_point_cast<std::chrono::milliseconds>(t);
-				data->sourceType = MAX30100;
+				data->timestamp = (long) std::chrono::time_point_cast<std::chrono::milliseconds>(t).time_since_epoch().count();
+				// data->sourceType = MAX30100;
 				// Read temp data
-				data->temperature.unit = CELSIUS;
-				data->temperature.value = (double)
+				// data->temperature.unit = CELSIUS;
+				// data->temperature.value = (double)
 					(wiringPiI2CReadReg8(this->fd, this->TEMP_REG) +
 					((double) wiringPiI2CReadReg8(this->fd,
 											this->TEMP_FRAC_REG) / 16));
@@ -59,13 +59,13 @@ class Max30100: public Datasource {
 				// Read IR and RED Data
 				int ir = wiringPiI2CReadReg8(this->fd, this->FIFO_BUF_PTR) << 8;
 				ir += wiringPiI2CReadReg8(this->fd,	this->FIFO_BUF_PTR);
-				data->irLED.value = (double) ir;
-				data->irLED.unit = NONE;
+				data->irLED = (uint16_t) ir;
+				// data->irLED.unit = NONE;
 
 				int r = wiringPiI2CReadReg8(this->fd, this->FIFO_BUF_PTR) << 8;
 				r += wiringPiI2CReadReg8(this->fd, this->FIFO_BUF_PTR);
-				data->redLED.value = (double) r;
-				data->redLED.unit = NONE;
+				data->redLED = (uint16_t) r;
+				// data->redLED.unit = NONE;
 
 				// Add to the queue
 				this->unprocessedData.push(data);

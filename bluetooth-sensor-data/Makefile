@@ -10,7 +10,7 @@ Make:
 	#        undecided
 
 send:
-	g++ bluetooth_sensor_data_send.cpp -lpthread -lbluetooth -g -o bluetooth_sensor_data_send.out
+	g++ bluetooth_sensor_data_send.cpp -lpthread -lbluetooth -lncurses -g -o bluetooth_sensor_data_send.out
 
 recv:
 	g++ bluetooth_sensor_data_recv.cpp -lpthread -lbluetooth -g -o bluetooth_sensor_data_recv.out

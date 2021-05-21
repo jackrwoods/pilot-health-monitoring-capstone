@@ -12,57 +12,80 @@
 #include <queue>
 
 // An enumeration of all data sources. Currently, only the MAX30100 is implemented.
-enum Source {
-	MAX30100
-	// Possibly add the ECE group's block as a "device" here?
+enum Source
+{
+	MAX30100,
+	ECE_BLACK_BOX,
+	BT_DATA_SENSOR,
+	UNKNOWN
 };
 
 // An enumeration containing various units of measure
-enum UnitOfMeasure {
+enum UnitOfMeasure
+{
 	CELSIUS,
-	MS, // Milliseconds (ms)
+	MS,	 // Milliseconds (ms)
 	NONE // No units (No units are specified in the MAX30100 spec sheet)
 };
 
-struct Value {
-	UnitOfMeasure unit;
-	double value;
+struct Value
+{
+	bool exists{false};
+	UnitOfMeasure unit{NONE};
+	double value{0.0L};
 };
 
-enum PilotState {
-	UNSTRESSED,
-	STRESSED
+// struct Sample
+// {
+// 	// std::chrono::_V2::system_clock::time_point timestamp; // Timestamp corresponding to when this was created
+// 	long timestamp;	   // Timestamp corresponding to when this was created - ms since collection was started?
+// 	Source sourceType; // Describes what created this sample. ie: data interpreter, sensor, etc
+// 	Value irLED;	   // Infrared LED observation
+// 	Value redLED;	   // Red LED observation
+// 	Value temperature; // Temperature observation
+// 	Value bpm;		   // Heart rate
+// 	Value avg_bpm;	   // Average heart rate
+// 	Value spo2;		   // Blood oxygen content
+// 	Value pilotState;  // The enum for Pilot State can be cast to a double
+// };
+
+struct Sample
+{
+	unsigned long timestamp{0};
+	uint16_t irLED{0};
+	uint16_t redLED{0};
+	uint16_t spo2{0};
+	uint16_t bpm{0};
+	uint16_t pilot_state{0};
 };
 
-struct Sample {
-	std::chrono::_V2::system_clock::time_point timestamp; // Timestamp corresponding to when this was created
-	Source sourceType; // Describes what created this sample. ie: data interpreter, sensor, etc
-	Value irLED; // Infrared LED observation
-	Value redLED; // Red LED observation
-	Value temperature; // Temperature observation
-	Value bpm; // Heart rate
-	Value spo2; // Blood oxygen content
-	Value pilotState; // The enum for Pilot State can be cast to a double
-};
+class Datasource
+{
+public:
+	// Spawns two threads:
+	// 	1. A data collection thread that reads samples at a
+	// 	set rate and pushes them to this->unprocessedSamples
+	// 	2. A data processing thread that calls each void
+	// 	pointer in this->callbacks once for each sample
+	virtual void initializeConnection() = 0;
 
-class Datasource {
-	public:
-		// Spawns two threads:
-		// 	1. A data collection thread that reads samples at a
-		// 	set rate and pushes them to this->unprocessedSamples
-		// 	2. A data processing thread that calls each void
-		// 	pointer in this->callbacks once for each sample
-		virtual void initializeConnection() = 0;
+	// Registers a callback function with this datasource.
+	// For each datum collected from the sensor, a pointer
+	// to the sample will be passed to the callback function.
 
-		// Registers a callback function with this datasource.
-		// For each datum collected from the sensor, a pointer
-		// to the sample will be passed to the callback function.
-		void registerCallback(
-			std::function<void(struct Sample*)> callbackFunction) {
-			this->callbacks.push_front(callbackFunction);
-		}
-	protected:
-		std::forward_list<std::function<void(struct Sample*)>> callbacks;
-		std::queue<struct Sample*> unprocessedData;
+	// void registerCallback(
+	// 	std::function<void(struct Sample*)> callbackFunction) {
+	// 	this->callbacks.push_front(callbackFunction);
+	// }
+
+	void registerCallback(std::function<void(Sample *)> callbackFunction)
+	{
+		this->callbacks.push_front(callbackFunction);
+	}
+
+protected:
+	// std::forward_list<std::function<void(struct Sample*)>> callbacks;
+	std::forward_list<std::function<void(Sample *)>> callbacks;
+	std::queue<struct Sample *> unprocessedData;
 };
 #endif

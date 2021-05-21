@@ -1,6 +1,6 @@
-// g++ sql.cpp -lmariadb -o test.out
 #include <iostream>
 #include <chrono>
+#include <assert.h>
 
 #include "./sql_con.hpp"
 
@@ -8,24 +8,46 @@
 int main()
 {
 	SQL_Connection sql;
-	std::vector<Sample> ins;
-	for (int i = 0; i < 64; i++)
-		ins.push_back(Sample(static_cast<po2_sample>(i), static_cast<optical_sample>(i)));
+	std::vector<Sample> sample_ins;
+	std::vector<Pilot_State> state_ins;
+	for (int i = 0; i < 64; i++) {
+		sample_ins.push_back(Sample(static_cast<po2_sample>(i), static_cast<optical_sample>(i)));
+		state_ins.push_back(static_cast<Pilot_State>(i%2));
+	}
 
-	std::cout << "Expect three 0's:" << std::endl;
-
-	// begin clock
-	auto start = std::chrono::high_resolution_clock::now();
+	// at each assert that there were no errors
 
 	// insert 64 samples
-	std::cout << sql.insert_samples(ins) << std::endl;
-
+	auto start = std::chrono::high_resolution_clock::now();
+	assert(0 == sql.insert_samples(sample_ins));
 	auto end = std::chrono::high_resolution_clock::now();
 	auto nanos = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count() / 64;
 	float hz = 1000000000.0 / nanos;
-
 	std::cout << "Inserted 64 Samples in " << nanos << " nanoseconds (max data transfer: " << hz << " hz)" << std::endl;
 
-	std::cout << sql.insert_sample({0, 0}) << std::endl;
-	std::cout << sql.insert_state(Pilot_State::STRESSED) << std::endl;
+	// single sample insert
+	start = std::chrono::high_resolution_clock::now();
+	assert(0 == sql.insert_sample({0, 0}));
+	end = std::chrono::high_resolution_clock::now();
+	nanos = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();
+	hz = 1000000000.0 / nanos;
+	std::cout << "Inserted 1 Sample in " << nanos << " nanoseconds (max data transfer: " << hz << " hz)" << std::endl;
+
+	// insert 64 states
+	start = std::chrono::high_resolution_clock::now();
+	assert(0 == sql.insert_states(state_ins));
+	end = std::chrono::high_resolution_clock::now();
+	nanos = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count() / 64;
+	hz = 1000000000.0 / nanos;
+	std::cout << "Inserted 64 states in " << nanos << " nanoseconds (max data transfer: " << hz << " hz)" << std::endl;
+
+	// single state insert
+	start = std::chrono::high_resolution_clock::now();
+	assert(0 == sql.insert_state(Pilot_State::STRESSED));
+	end = std::chrono::high_resolution_clock::now();
+	nanos = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();
+	hz = 1000000000.0 / nanos;
+	std::cout << "Inserted 1 state in " << nanos << " nanoseconds (max data transfer: " << hz << " hz)" << std::endl;
+
+	return 0;
 }

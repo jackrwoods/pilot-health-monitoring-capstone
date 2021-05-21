@@ -1,1 +1,3 @@
 *.vscode
+*.vs
+/data-visualization/node-v14.15.1-linux-arm6l/*

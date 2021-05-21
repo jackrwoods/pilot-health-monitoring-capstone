@@ -8,11 +8,11 @@ LDIR=lib
 SRCDIR=src
 
 CC=g++
-CFLAGS=-I$(IDIR) -std=c++14 -I /usr/include -I /usr/local/include -I /lib/sqlite -L /usr/lib -L/usr/local/lib -lwiringPi -pthread -lssl -lcrypto -lboost_system -lsqlite3
+CFLAGS=-I$(IDIR) -std=c++14 -I /usr/include -I /usr/local/include -I /lib/sqlite -L /usr/lib -L/usr/local/lib -lbluetooth -lwiringPi -pthread -lssl -lcrypto -lboost_system -lsqlite3
 
 LIBS=-lm
 
-_DEPS = datasource.hpp ds_data_store.hpp ds_looping_buffer.hpp sql_con.hpp
+_DEPS = datasource.hpp ds_data_store.hpp ds_looping_buffer.hpp sql_con.hpp bluetooth_sensor_data_recv.hpp
 DEPS = $(patsubst %,$(IDIR)/%,$(_DEPS))
 
 _OBJ = main.o max30100Datasource.o
